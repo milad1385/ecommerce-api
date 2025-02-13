@@ -1,6 +1,6 @@
 const yup = require("yup");
 
-exports.sendSchema = yup.object({
+exports.sendOtpValidator = yup.object({
   phone: yup
     .string()
     .required("phone number is required !!! ")
