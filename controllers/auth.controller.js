@@ -105,4 +105,12 @@ exports.verify = async (req, res, next) => {
   }
 };
 
-exports.me = async (req, res, next) => {};
+exports.me = async (req, res, next) => {
+  try {
+    const user = req.user;
+
+    return successResponse(res, 200, { user });
+  } catch (error) {
+    next(error);
+  }
+};
