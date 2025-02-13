@@ -5,7 +5,7 @@ const getPhoneByPattern = (phone) => {
   return `otp:${phone}`;
 };
 
-exports.getOtpDetails = async (phone) => {
+const getOtpDetails = async (phone) => {
   const otp = await redis.get(getPhoneByPattern(phone));
 
   if (!otp) {
@@ -29,7 +29,7 @@ exports.getOtpDetails = async (phone) => {
   };
 };
 
-exports.generateOtp = async (phone, length = 4, expire = 2) => {
+const generateOtp = async (phone, length = 4, expire = 2) => {
   const digites = "0123456789";
 
   let otp = "";
@@ -49,3 +49,5 @@ exports.generateOtp = async (phone, length = 4, expire = 2) => {
 
   return otp;
 };
+
+module.exports = { getPhoneByPattern, generateOtp, getOtpDetails };
