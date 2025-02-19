@@ -30,3 +30,33 @@ exports.ban = async (req, res, next) => {
   }
 };
 
+exports.addAddress = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 422, "Please send valid id");
+    }
+
+    const user = await User.findOneAndUpdate(
+      { _id: id },
+      {
+        $push: {
+          addresses: req.body,
+        },
+      },
+      { new: true }
+    );
+
+    if (!user) {
+      return errorResponse(res, 404, "user not found !!!");
+    }
+
+    return successResponse(res, 200, {
+      message: "address added successfully :)",
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
