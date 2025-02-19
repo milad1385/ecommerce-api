@@ -2,7 +2,10 @@ const { isValidObjectId } = require("mongoose");
 const { errorResponse, successResponse } = require("../helpers/responses");
 const User = require("../models/user");
 const Ban = require("../models/ban");
-const { createAddressValidator } = require("../validators/address.validator");
+const {
+  createAddressValidator,
+  updateAddressValidator,
+} = require("../validators/address.validator");
 
 exports.ban = async (req, res, next) => {
   try {
@@ -86,6 +89,42 @@ exports.delete = async (req, res, next) => {
 
     return successResponse(res, 200, {
       message: "address deleted successfully :)",
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.update = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { name, postalCode, address, location, cityId } = req.body;
+
+    await updateAddressValidator.validate(req.body, { abortEarly: false });
+
+    const user = req.user;
+
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 422, "Please send valid id");
+    }
+
+    const userAddress = await user.addresses.id(id);
+
+    if (!userAddress) {
+      return errorResponse(res, 404, "address not found !!!");
+    }
+
+    userAddress.name = name || userAddress.name;
+    userAddress.postalCode = postalCode || userAddress.postalCode;
+    userAddress.address = address || userAddress.address;
+    userAddress.location = location || userAddress.location;
+    userAddress.cityId = cityId || userAddress.cityId;
+
+    await user.save();
+
+    return successResponse(res, 200, {
+      message: "address updated successfully :)",
       user,
     });
   } catch (error) {
