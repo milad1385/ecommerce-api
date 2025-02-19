@@ -2,6 +2,7 @@ const { isValidObjectId } = require("mongoose");
 const { errorResponse, successResponse } = require("../helpers/responses");
 const User = require("../models/user");
 const Ban = require("../models/ban");
+const { createAddressValidator } = require("../validators/address.validator");
 
 exports.ban = async (req, res, next) => {
   try {
@@ -37,6 +38,8 @@ exports.addAddress = async (req, res, next) => {
     if (!isValidObjectId(id)) {
       return errorResponse(res, 422, "Please send valid id");
     }
+
+    await createAddressValidator.validate(req.body, { abortEarly: false });
 
     const user = await User.findOneAndUpdate(
       { _id: id },
