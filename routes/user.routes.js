@@ -5,6 +5,9 @@ const authGaurd = require("../middlewares/authGaurd");
 const router = express.Router();
 
 router.route("/ban/:id").post(auth, authGaurd("ADMIN"), controller.ban);
-router.route("/:id/address").post(auth, controller.addAddress);
+router
+  .route("/:id/address")
+  .post(auth, controller.addAddress)
+  .delete(auth, controller.delete);
 
 module.exports = router;

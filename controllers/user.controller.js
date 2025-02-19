@@ -63,3 +63,32 @@ exports.addAddress = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.delete = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const user = req.user;
+
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 422, "Please send valid id");
+    }
+
+    const address = await user.addresses.id(id);
+
+    if (!address) {
+      return errorResponse(res, 404, "address not found !!!");
+    }
+
+    await user.addresses.pull(id);
+
+    await user.save();
+
+    return successResponse(res, 200, {
+      message: "address deleted successfully :)",
+      user,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
