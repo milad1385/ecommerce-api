@@ -40,6 +40,20 @@ exports.create = async (req, res, next) => {
 
 exports.delete = async (req, res, next) => {
   try {
+    const user = req.user;
+
+    const isExsitingUser = await Seller.findOne({ user: user._id });
+
+    if (!isExsitingUser) {
+      return errorResponse(res, 404, "Seller not found !!!");
+    }
+
+    const deletedSeller = await Seller.findOneAndDelete({ user: user._id });
+
+    return successResponse(res, 200, {
+      message: "Seller deleted successfully :)",
+      deletedSeller,
+    });
   } catch (error) {
     next(error);
   }
