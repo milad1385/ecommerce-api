@@ -68,6 +68,17 @@ exports.update = async (req, res, next) => {
 
 exports.get = async (req, res, next) => {
   try {
+    const user = req.user;
+
+    const seller = await Seller.findOne({ user: user._id });
+
+    if (!seller) {
+      return errorResponse(res, 404, "Seller not found !!!");
+    }
+
+    return successResponse(res, 200, {
+      seller,
+    });
   } catch (error) {
     next(error);
   }
