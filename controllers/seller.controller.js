@@ -1,6 +1,6 @@
 const { errorResponse, successResponse } = require("../helpers/responses");
 const Seller = require("../models/seller");
-const { createSellerValidator } = require("../validators/seller.validator");
+const { createSellerValidator, updateSellerValidator } = require("../validators/seller.validator");
 const cities = require("../cities/cities.json");
 
 exports.create = async (req, res, next) => {
@@ -61,6 +61,31 @@ exports.delete = async (req, res, next) => {
 
 exports.update = async (req, res, next) => {
   try {
+    const { name, contactDetails, cityId } = req.body;
+    const user = req.user;
+
+    await updateSellerValidator.validate(req.body, { abortEarly: false });
+
+    const existingSeller = await Seller.findOne({ user: user._id });
+
+    if (!existingSeller) {
+      return errorResponse(res, 404, "Seller not found !!");
+    }
+
+    const seller = await Seller.findByIdAndUpdate(
+      existingSeller._id,
+      {
+        name,
+        contactDetails,
+        cityId,
+      },
+      { new: true }
+    );
+
+    return successResponse(res, 200, {
+      message: "Seller updated successfully",
+      seller,
+    });
   } catch (error) {
     next(error);
   }
