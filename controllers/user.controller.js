@@ -2,6 +2,7 @@ const { isValidObjectId } = require("mongoose");
 const { errorResponse, successResponse } = require("../helpers/responses");
 const User = require("../models/user");
 const Ban = require("../models/ban");
+const cities = require("../cities/cities.json");
 const {
   createAddressValidator,
   updateAddressValidator,
@@ -43,6 +44,12 @@ exports.addAddress = async (req, res, next) => {
     }
 
     await createAddressValidator.validate(req.body, { abortEarly: false });
+
+    const city = cities.find((city) => +city.id === +req.body.cityId);
+
+    if (!city) {
+      return errorResponse(res, 404, "city not found !!!");
+    }
 
     const user = await User.findOneAndUpdate(
       { _id: id },
@@ -107,6 +114,12 @@ exports.update = async (req, res, next) => {
 
     if (!isValidObjectId(id)) {
       return errorResponse(res, 422, "Please send valid id");
+    }
+
+    const city = cities.find((city) => +city.id === +cityId);
+
+    if (!city) {
+      return errorResponse(res, 404, "city not found !!!");
     }
 
     const userAddress = await user.addresses.id(id);
