@@ -7,6 +7,7 @@ const {
   createAddressValidator,
   updateAddressValidator,
 } = require("../validators/address.validator");
+const { createPagination } = require("../utils/pagination");
 
 exports.ban = async (req, res, next) => {
   try {
@@ -134,11 +135,30 @@ exports.update = async (req, res, next) => {
     userAddress.location = location || userAddress.location;
     userAddress.cityId = cityId || userAddress.cityId;
 
-    await user.save();
+    const updatedUser = await user.save();
 
     return successResponse(res, 200, {
       message: "address updated successfully :)",
-      user,
+      user: updatedUser,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getAll = async (req, res, next) => {
+  try {
+    let { page = 1, limit = 10 } = req.query;
+
+    const users = await User.find({})
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    const totalUsers = await User.countDocuments({});
+
+    return successResponse(res, 200, {
+      users,
+      pagination: createPagination(page, limit, totalUsers, "Users"),
     });
   } catch (error) {
     next(error);
