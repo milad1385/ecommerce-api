@@ -5,6 +5,7 @@ const { setHeaders } = require("./middlewares/setHeaders");
 const authRouter = require("./routes/auth.routes");
 const userRouter = require("./routes/user.routes");
 const sellerRouter = require("./routes/seller.routes");
+const locationRouter = require("./routes/location.routes");
 
 app.use(express.urlencoded({ extended: false, limit: "30mb" }));
 app.use(express.json({ limit: "30mb" }));
@@ -15,6 +16,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
 app.use("/api/seller", sellerRouter);
+app.use("/api/location", locationRouter);
 
 app.use((req, res) => {
   console.log("This path is not found: ", req.path);
