@@ -56,6 +56,28 @@ exports.create = async (req, res, next) => {
   }
 };
 
+exports.delete = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 422, "Please send valid id !!!");
+    }
+
+    const deletedCatgory = await Category.findByIdAndDelete(id);
+
+    if (!deletedCatgory) {
+      return errorResponse(res, 404, "Category  not found !!!");
+    }
+
+    return successResponse(res, 200, {
+      message: "Category deleted successfuly :)",
+      category: deletedCatgory,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 exports.update = async (req, res, next) => {
   try {
