@@ -1,6 +1,9 @@
 const { isValidObjectId } = require("mongoose");
 const { errorResponse, successResponse } = require("../helpers/responses");
-const { categoryValidator } = require("../validators/category.validator");
+const {
+  categoryValidator,
+  categoryEditValidator,
+} = require("../validators/category.validator");
 const Category = require("../models/category");
 
 const supportedFormat = [
@@ -86,6 +89,52 @@ exports.update = async (req, res, next) => {
     if (!isValidObjectId(id)) {
       return errorResponse(res, 422, "Please send valid id !!!");
     }
+
+    let { title, slug, parent, description, filters } = req.body;
+    filters = JSON.parse(filters);
+
+    await categoryEditValidator.validate(
+      { title, slug, parent, description, filters },
+      { abortEarly: false }
+    );
+
+    let icon = null;
+    if (req.file) {
+      const { filename, mimetype } = req.file;
+
+      if (!supportedFormat.includes(mimetype)) {
+        return errorResponse(res, 422, "Please choose image with this format", {
+          supportedFormat,
+        });
+      }
+
+      icon = {
+        filename,
+        path: `/images/category-icon/${filename}`,
+      };
+    }
+
+    const updatedCategory = await Category.findByIdAndUpdate(
+      id,
+      {
+        title,
+        slug,
+        parent,
+        description,
+        filters,
+        icon,
+      },
+      { new: true }
+    );
+
+    if (!updatedCategory) {
+      return errorResponse(res, 404, "Category not found !!");
+    }
+
+    return successResponse(res, 200, {
+      message: "Category updated successfully :)",
+      category: updatedCategory,
+    });
   } catch (error) {
     next(error);
   }
