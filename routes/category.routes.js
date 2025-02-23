@@ -32,5 +32,6 @@ router
 
 router
   .route("/sub/:id")
-  .delete(auth, roleGaurd("ADMIN"), subCategoryController.delete);
+  .delete(auth, roleGaurd("ADMIN"), subCategoryController.delete)
+  .put(auth, roleGaurd("ADMIN"), subCategoryController.update);
 module.exports = router;

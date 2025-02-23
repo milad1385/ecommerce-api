@@ -55,7 +55,6 @@ exports.delete = async (req, res, next) => {
       message: "subCategory deleted successfully :)",
       subCategory: deletedSubCategory,
     });
-
   } catch (error) {
     next(error);
   }
@@ -66,8 +65,37 @@ exports.update = async (req, res, next) => {
     const { id } = req.params;
 
     if (!isValidObjectId(id)) {
-      return errorResponse(res, 422, "PLease send valid id !!!");
+      return errorResponse(res, 422, "Please send valid id !!!");
     }
+
+    let { title, slug, parent, description, filters } = req.body;
+    filters = JSON.parse(filters);
+
+    await subCategoryValidator.validate(
+      { title, slug, parent, description, filters },
+      { abortEarly: false }
+    );
+
+    const updatedSubCategory = await SubCategory.findByIdAndUpdate(
+      id,
+      {
+        title,
+        slug,
+        parent,
+        description,
+        filters,
+      },
+      { new: true }
+    );
+
+    if (!updatedSubCategory) {
+      return errorResponse(res, 404, "subCategory not found !!");
+    }
+
+    return successResponse(res, 200, {
+      message: "Category updated successfully :)",
+      category: updatedSubCategory,
+    });
   } catch (error) {
     next(error);
   }
