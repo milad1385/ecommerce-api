@@ -99,6 +99,9 @@ exports.update = async (req, res, next) => {
 
 exports.getAll = async (req, res, next) => {
   try {
+    const subCategories = await SubCategory.find({});
+
+    return successResponse(res, 200, { subCategories });
   } catch (error) {
     next(error);
   }
