@@ -68,4 +68,4 @@ const schema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Category", schema);
+module.exports = mongoose.model("SubCategory", schema);
