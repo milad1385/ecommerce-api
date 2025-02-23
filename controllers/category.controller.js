@@ -5,6 +5,7 @@ const {
   categoryEditValidator,
 } = require("../validators/category.validator");
 const Category = require("../models/category");
+const SubCategory = require("../models/subCategory");
 
 const supportedFormat = [
   "image/jpeg",
@@ -135,6 +136,28 @@ exports.update = async (req, res, next) => {
       message: "Category updated successfully :)",
       category: updatedCategory,
     });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.fetchAll = async (req, res, next) => {
+  try {
+    const fetchAllCategories = async (parentId = null) => {
+      const subCategories = await SubCategory.find({ parent: parentId });
+      const mainCategories = await Category.find({ parent: parentId });
+      let allCategories = [];
+      for (const category of mainCategories) {
+        categories.subCategories = await fetchAllCategories(category._id);
+        allCategories.push(categories);
+      }
+
+      return [...allCategories, ...subCategories];
+    };
+
+    const categories = await fetchAllCategories(null);
+
+    return successResponse(res, 200, { categories });
   } catch (error) {
     next(error);
   }

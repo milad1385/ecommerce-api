@@ -17,4 +17,6 @@ router
   .delete(auth, roleGaurd("ADMIN"), controller.delete)
   .put(auth, roleGaurd("ADMIN"), controller.update);
 
+router.route("/").get(controller.fetchAll);
+
 module.exports = router;
