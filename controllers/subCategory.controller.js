@@ -1,6 +1,6 @@
 const { isValidObjectId } = require("mongoose");
 const { errorResponse, successResponse } = require("../helpers/responses");
-const { categoryEditValidator } = require("../validators/category.validator");
+const { subCategoryValidator } = require("../validators/category.validator");
 const Category = require("../models/category");
 const SubCategory = require("../models/subCategory");
 
@@ -8,7 +8,7 @@ exports.create = async (req, res, next) => {
   try {
     let { title, slug, parent, description, filters } = req.body;
 
-    await categoryEditValidator.validate(req.body, { abortEarly: false });
+    await subCategoryValidator.validate(req.body, { abortEarly: false });
 
     const isExistParent = await Category.findOne({ _id: parent });
 
