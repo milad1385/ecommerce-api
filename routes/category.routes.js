@@ -1,5 +1,6 @@
 const express = require("express");
-const controller = require("../controllers/category.controller");
+const categoryController = require("../controllers/category.controller");
+const subCategoryController = require("../controllers/subCategory.controller");
 const { auth } = require("../middlewares/auth");
 const roleGaurd = require("../middlewares/roleGaurd");
 const { multerStorage } = require("../middlewares/multer");
@@ -10,13 +11,26 @@ const uploader = multerStorage("public/images/category-icon");
 
 router
   .route("/")
-  .post(auth, roleGaurd("ADMIN"), uploader.single("icon"), controller.create);
+  .post(
+    auth,
+    roleGaurd("ADMIN"),
+    uploader.single("icon"),
+    categoryController.create
+  );
 
 router
   .route("/:id")
-  .delete(auth, roleGaurd("ADMIN"), controller.delete)
-  .put(auth, roleGaurd("ADMIN"), controller.update);
+  .delete(auth, roleGaurd("ADMIN"), categoryController.delete)
+  .put(auth, roleGaurd("ADMIN"), categoryController.update);
 
-router.route("/").get(controller.fetchAll);
+router.route("/").get(categoryController.fetchAll);
 
+router
+  .route("/sub")
+  .post(auth, roleGaurd("ADMIN"), subCategoryController.create)
+  .get(subCategoryController.getAll);
+
+router
+  .route("/sub/:id")
+  .delete(auth, roleGaurd("ADMIN"), subCategoryController.delete);
 module.exports = router;
