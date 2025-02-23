@@ -4,7 +4,7 @@ const User = require("../models/user");
 const Ban = require("../models/ban");
 exports.auth = async (req, res, next) => {
   try {
-    const accessToken = req.authorization;
+    const accessToken = req.headers.authorization;
 
     if (!accessToken) {
       return errorResponse(res, 401, "Please send accessToken !!!");

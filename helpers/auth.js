@@ -34,7 +34,7 @@ const generateOtp = async (phone, length = 4, expire = 2) => {
 
   let otp = "";
 
-  for (let i = 0; index < length; i++) {
+  for (let i = 0; i < length; i++) {
     otp += digites[Math.random() * digites.length];
   }
 

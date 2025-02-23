@@ -3,12 +3,12 @@ module.exports = (role) => {
     try {
       const user = req.user;
 
-      if (!user.role.includes(role)) {
+      if (!user.roles.includes(role)) {
         return res
           .status(403)
           .json({ message: "This route is forbidden for you !!!" });
       }
-      next()
+      next();
     } catch (error) {
       next(error);
     }
