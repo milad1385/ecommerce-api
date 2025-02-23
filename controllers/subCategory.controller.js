@@ -69,12 +69,8 @@ exports.update = async (req, res, next) => {
     }
 
     let { title, slug, parent, description, filters } = req.body;
-    filters = JSON.parse(filters);
 
-    await subCategoryValidator.validate(
-      { title, slug, parent, description, filters },
-      { abortEarly: false }
-    );
+    await subCategoryValidator.validate(req.body, { abortEarly: false });
 
     const updatedSubCategory = await SubCategory.findByIdAndUpdate(
       id,
