@@ -143,22 +143,29 @@ exports.update = async (req, res, next) => {
 
 exports.fetchAll = async (req, res, next) => {
   try {
-    const fetchAllCategories = async (parentId = null) => {
+    const fetchSubcategoriesRecursively = async (parentId = null) => {
       const subCategories = await SubCategory.find({ parent: parentId });
-      const mainCategories = await Category.find({ parent: parentId });
-      let allCategories = [];
-      for (const category of mainCategories) {
-        categories.subCategories = await fetchAllCategories(category._id);
-        allCategories.push(categories);
+      const parentSubCategories = await Category.find({
+        parent: parentId,
+      }).lean();
+
+      const fetchedParentSubCategories = [];
+
+      for (const category of parentSubCategories) {
+        category.subCategories = await fetchSubcategoriesRecursively(
+          category._id
+        );
+
+        fetchedParentSubCategories.push(category);
       }
 
-      return [...allCategories, ...subCategories];
+      return [...fetchedParentSubCategories, ...subCategories];
     };
 
-    const categories = await fetchAllCategories(null);
+    const categories = await fetchSubcategoriesRecursively(null);
 
     return successResponse(res, 200, { categories });
-  } catch (error) {
-    next(error);
+  } catch (err) {
+    next(err);
   }
 };

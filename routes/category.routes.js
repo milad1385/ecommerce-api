@@ -27,7 +27,12 @@ router.route("/").get(categoryController.fetchAll);
 
 router
   .route("/sub")
-  .post(auth, roleGaurd("ADMIN"), subCategoryController.create)
+  .post(
+    auth,
+    roleGaurd("ADMIN"),
+    uploader.single("icon"),
+    subCategoryController.create
+  )
   .get(subCategoryController.getAll);
 
 router
