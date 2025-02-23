@@ -17,15 +17,9 @@ const supportedFormat = [
 ];
 
 exports.create = async (req, res, next) => {
-
-  console.log("req sended !!!");
-  
   try {
     let { title, slug, parent, description, filters } = req.body;
     filters = JSON.parse(filters);
-
-    console.log(req.body);
-    
 
     await categoryValidator.validate(
       { title, slug, parent, description, filters },
