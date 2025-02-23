@@ -114,6 +114,10 @@ exports.getOne = async (req, res, next) => {
     if (!isValidObjectId(id)) {
       return errorResponse(res, 422, "Please send valid id !!!");
     }
+
+    const subCategory = await SubCategory.findOne({ _id: id });
+
+    return successResponse(res, 200, { subCategory });
   } catch (error) {
     next(error);
   }
