@@ -16,4 +16,6 @@ router
     controller.create
   );
 
+router.route("/:id").delete(auth, roleGaurd("ADMIN"), controller.delete);
+
 module.exports = router;
