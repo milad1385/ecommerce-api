@@ -4,6 +4,8 @@ const SubCategory = require("../models/subCategory");
 const { createProductValidator } = require("../validators/product.validator");
 const { nanoid } = require("nanoid");
 const Product = require("../models/product");
+const fs = require("fs");
+
 const supportedFormat = [
   "image/jpeg",
   "image/png",
@@ -30,7 +32,6 @@ exports.create = async (req, res, next) => {
     sellers = JSON.parse(sellers);
 
     console.log(sellers);
-    
 
     await createProductValidator.validate(
       {
@@ -117,6 +118,21 @@ exports.delete = async (req, res, next) => {
     if (!isValidObjectId(id)) {
       return errorResponse(res, 422, "Please send valid id !!!");
     }
+
+    const deletedProduct = await Product.findByIdAndDelete(id);
+
+    if (!deletedProduct) {
+      return errorResponse(res, 404, "the product not found !!!");
+    }
+
+    deletedProduct?.images?.forEach((image) =>
+      fs.unlink(`public/images/products/${image.filename}`, (err) => next(err))
+    );
+
+    return successResponse(res, 200, {
+      message: "Product deleted successfully :)",
+      product: deletedProduct,
+    });
   } catch (error) {
     next(error);
   }
