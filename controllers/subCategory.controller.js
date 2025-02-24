@@ -8,7 +8,10 @@ exports.create = async (req, res, next) => {
   try {
     let { title, slug, parent, description, filters } = req.body;
 
-    await subCategoryValidator.validate(req.body, { abortEarly: false });
+    await subCategoryValidator.validate(
+      { title, slug, parent, description, filters },
+      { abortEarly: false }
+    );
 
     const isExistParent = await Category.findOne({ _id: parent });
 

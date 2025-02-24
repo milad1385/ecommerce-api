@@ -16,7 +16,7 @@ const categoryFiltersSchema = yup.object().shape({
   type: yup
     .string()
     .required("Category Filter type is required")
-    .oneOf(["radio", "selectbox"]),
+    .oneOf(["radio", "selectbox" , "checkbox"]),
   required: yup.boolean().default(false),
   options: yup.array().when("type", {
     is: (typeName) => ["radio", "selectbox"].includes(typeName),
