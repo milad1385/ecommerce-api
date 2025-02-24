@@ -31,8 +31,6 @@ exports.create = async (req, res, next) => {
     customFilters = JSON.parse(customFilters);
     sellers = JSON.parse(sellers);
 
-    console.log(sellers);
-
     await createProductValidator.validate(
       {
         name,
