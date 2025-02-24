@@ -5,14 +5,14 @@ const roleGaurd = require("../middlewares/roleGaurd");
 const controller = require("../controllers/product.controller");
 const router = express.Router();
 
-const uploader = multerStorage("public/images/product");
+const upload = multerStorage("public/images/products");
 
 router
   .route("/")
   .post(
     auth,
     roleGaurd("ADMIN"),
-    uploader.array("images", 10),
+    upload.array("images", 10),
     controller.create
   );
 

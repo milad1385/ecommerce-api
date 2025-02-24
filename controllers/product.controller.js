@@ -29,6 +29,9 @@ exports.create = async (req, res, next) => {
     customFilters = JSON.parse(customFilters);
     sellers = JSON.parse(sellers);
 
+    console.log(sellers);
+    
+
     await createProductValidator.validate(
       {
         name,
@@ -70,7 +73,7 @@ exports.create = async (req, res, next) => {
 
       let image = {
         filename: file.filename,
-        path: `/images/product/${file.filename}`,
+        path: `/images/products/${file.filename}`,
       };
 
       images.push(image);
@@ -92,7 +95,7 @@ exports.create = async (req, res, next) => {
       filterValues,
       images,
       name,
-      sellers: [{ seller: "67bc9300d2833381c53101f1", price: sellers.price }],
+      sellers,
       shortIdentifier,
       slug,
       subCategory,

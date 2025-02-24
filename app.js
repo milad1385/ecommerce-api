@@ -30,4 +30,9 @@ app.use((req, res) => {
   });
 });
 
+// app.use((err, req, res, next) => {
+//   console.error('Error:', err.message);
+//   res.status(500).send('An error occurred during file upload');
+// });
+
 module.exports = app;
