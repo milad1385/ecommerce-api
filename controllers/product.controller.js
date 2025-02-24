@@ -157,6 +157,17 @@ exports.getOne = async (req, res, next) => {
     if (!isValidObjectId(id)) {
       return errorResponse(res, 422, "Please send valid id !!!");
     }
+
+    const product = await Product.findOne({ _id: id }).populate(
+      "subCategory sellers.seller"
+    );
+
+    if (!product) {
+      return errorResponse(res, 404, "Product not found !!!");
+    }
+    return successResponse(res, 200, {
+      product,
+    });
   } catch (error) {
     next(error);
   }
