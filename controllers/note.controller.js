@@ -52,3 +52,37 @@ exports.create = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.delete = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const user = req.user;
+
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 422, "PLease send valid id !!!");
+    }
+
+    const note = await Note.findOne({ _id: id }).populate("user");
+
+    if (note.user.toString() !== user._id.toString()) {
+      return errorResponse(
+        res,
+        403,
+        "You dont have access to delete this note !!!"
+      );
+    }
+
+    const deletedNote = await Note.findByIdAndDelete(id);
+
+    if (!deletedNote) {
+      return errorResponse(res, 404, "Note not found !!!");
+    }
+
+    return successResponse(res, 200, {
+      message: "Note deleted successfully :))",
+      note: deletedNote,
+    });
+  } catch (error) {
+    next(error);
+  }
+};

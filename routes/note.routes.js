@@ -5,4 +5,10 @@ const router = express.Router();
 
 router.route("/").get(auth, controller.getAll).post(auth, controller.create);
 
+router
+  .route("/:id")
+  .get(auth, controller.getOne)
+  .delete(auth, controller.delete)
+  .put(auth, controller.update);
+
 module.exports = router;
