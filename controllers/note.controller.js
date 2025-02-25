@@ -2,9 +2,36 @@ const { isValidObjectId } = require("mongoose");
 const { errorResponse, successResponse } = require("../helpers/responses");
 const Product = require("../models/product");
 const Note = require("../models/note");
+const { createPagination } = require("../utils/pagination");
 
-exports.getAll = async (req, res, next) => {
+exports.getUserNotes = async (req, res, next) => {
   try {
+    const { page = 1, limit = 10 } = req.query;
+
+    const user = req.user;
+
+    const notes = await Note.find({ user: user._id })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .populate("user product")
+      .sort({ createdAt: -1 })
+      .lean();
+
+    const productNotes = notes.map((note) => ({
+      product: note.product,
+      note: {
+        _id: note._id,
+        content: note.content,
+        createdAt: note.createdAt,
+      },
+    }));
+
+    const userTotalNotes = await Note.countDocuments({ user: user._id });
+
+    return successResponse(res, 200, {
+      notes: productNotes,
+      pagination: createPagination(page, limit, userTotalNotes, "Notes"),
+    });
   } catch (error) {
     next(error);
   }
