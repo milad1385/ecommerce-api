@@ -5,6 +5,7 @@ const { createProductValidator } = require("../validators/product.validator");
 const { nanoid } = require("nanoid");
 const Product = require("../models/product");
 const fs = require("fs");
+const Note = require("../models/note");
 
 const supportedFormat = [
   "image/jpeg",
@@ -126,6 +127,8 @@ exports.delete = async (req, res, next) => {
     deletedProduct?.images?.forEach((image) =>
       fs.unlink(`public/images/products/${image.filename}`, (err) => next(err))
     );
+
+    await Note.deleteMany({ product: deletedProduct._id });
 
     return successResponse(res, 200, {
       message: "Product deleted successfully :)",
