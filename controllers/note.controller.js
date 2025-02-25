@@ -86,3 +86,47 @@ exports.delete = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getOne = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const user = req.user;
+
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 422, "PLease send valid id !!!");
+    }
+
+    const note = await Note.findOne({ user: user._id })
+      .populate("user product")
+      .lean();
+
+    if (!note) {
+      return errorResponse(res, 404, "Note not found !!!");
+    }
+
+    if (note.user._id.toString() !== user._id.toString()) {
+      return errorResponse(
+        res,
+        403,
+        "You don't have access to see this note !!!"
+      );
+    }
+
+    const product = {
+      ...note.product,
+      note: {
+        _id: note._id,
+        content: note.content,
+        createdAt: note.createdAt,
+        creator: note.user,
+      },
+    };
+
+    return successResponse(res, 200, {
+      product,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
