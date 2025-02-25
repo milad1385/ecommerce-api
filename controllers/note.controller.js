@@ -157,3 +157,47 @@ exports.getOne = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.update = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const user = req.user;
+
+    const { content } = req.body;
+
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 422, "Please send valid id !!!");
+    }
+
+    const existingNote = await Note.findOne({ user: user._id }).populate(
+      "user"
+    );
+
+    if (!existingNote) {
+      return errorResponse(res, 404, "Note not found !!!");
+    }
+
+    if (user._id.toString() !== existingNote.user._id.toString()) {
+      return errorResponse(
+        res,
+        403,
+        "You don't have access to update this note !!!"
+      );
+    }
+
+    const updatedNote = await Note.findByIdAndUpdate(
+      id,
+      {
+        content,
+      },
+      { new: true }
+    );
+
+    return successResponse(res, 200, {
+      message: "note updated successfully :)",
+      note: updatedNote,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
