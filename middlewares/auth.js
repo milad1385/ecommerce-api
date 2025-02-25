@@ -10,9 +10,6 @@ exports.auth = async (req, res, next) => {
       return errorResponse(res, 401, "Please send accessToken !!!");
     }
 
-    console.log(accessToken);
-    
-
     const tokenArray = accessToken.split(" ");
     const token = tokenArray[1];
 
