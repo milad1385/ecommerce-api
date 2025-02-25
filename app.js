@@ -8,6 +8,7 @@ const sellerRouter = require("./routes/seller.routes");
 const locationRouter = require("./routes/location.routes");
 const categoryRouter = require("./routes/category.routes");
 const productRouter = require("./routes/product.routes.js");
+const noteRouter = require("./routes/note.routes.js");
 
 app.use(express.urlencoded({ extended: false, limit: "30mb" }));
 app.use(express.json({ limit: "30mb" }));
@@ -21,6 +22,7 @@ app.use("/api/seller", sellerRouter);
 app.use("/api/location", locationRouter);
 app.use("/api/category", categoryRouter);
 app.use("/api/product", productRouter);
+app.use("/api/note", noteRouter);
 
 app.use((req, res) => {
   console.log("This path is not found: ", req.path);
