@@ -1,7 +1,10 @@
 const { isValidObjectId } = require("mongoose");
 const { errorResponse, successResponse } = require("../helpers/responses");
 const SubCategory = require("../models/subCategory");
-const { createProductValidator } = require("../validators/product.validator");
+const {
+  createProductValidator,
+  updateProductValidator,
+} = require("../validators/product.validator");
 const { nanoid } = require("nanoid");
 const Product = require("../models/product");
 const fs = require("fs");
@@ -146,6 +149,77 @@ exports.update = async (req, res, next) => {
     if (!isValidObjectId(id)) {
       return errorResponse(res, 422, "Please send valid id !!!");
     }
+
+    const product = await Product.findOne({ _id: id });
+
+    if (!product) {
+      return errorResponse(res, 404, "Product not found !!!");
+    }
+
+    let { name, slug, description, subCategory, filterValues, customFilters } =
+      req.body;
+
+    filterValues = JSON.parse(filterValues || {});
+    customFilters = JSON.parse(customFilters || {});
+
+    await updateProductValidator.validate(
+      {
+        name,
+        slug,
+        sellers,
+        description,
+        subCategory,
+        filterValues,
+        customFilters,
+      },
+      { abortEarly: false }
+    );
+
+    let images = [];
+
+    if (req.files.length) {
+      for (let i = 0; i < req.files.length; i++) {
+        const file = req.files[i];
+
+        if (!supportedFormat.includes(file.mimetype)) {
+          return errorResponse(
+            res,
+            400,
+            "The format of this images is in correct",
+            {
+              supportedFormat,
+            }
+          );
+        }
+
+        let image = {
+          filename: file.filename,
+          path: `/images/products/${file.filename}`,
+        };
+
+        images.push(image);
+      }
+    }
+
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id,
+      {
+        name,
+        slug,
+        sellers,
+        description,
+        subCategory,
+        filterValues,
+        customFilters,
+        images: images.length ? images : product.images,
+      },
+      { new: true }
+    );
+
+    return successResponse(res, 200, {
+      message: "Product updated successfully :)",
+      product: updatedProduct,
+    });
   } catch (error) {
     next(error);
   }

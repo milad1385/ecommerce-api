@@ -89,35 +89,35 @@ const updateProductValidator = yup.object().shape({
       (value) => value === null || value === undefined || isValidObjectId(value)
     ),
 
-  sellers: yup
-    .array()
-    .of(
-      yup.object().shape({
-        id: yup
-          .string()
-          .required("Seller ID is required")
-          .test(
-            "is-valid-objectid",
-            "Seller ID must be a valid ObjectId",
-            isValidObjectId
-          ),
-        price: yup
-          .number()
-          .required("Price is required")
-          .positive("Price must be a positive number"),
-        stock: yup
-          .number()
-          .required("Stock is required")
-          .min(0, "Stock must be a non-negative number"),
-      })
-    )
-    .min(1, "At least one seller is required"),
+  // sellers: yup
+  //   .array()
+  //   .of(
+  //     yup.object().shape({
+  //       id: yup
+  //         .string()
+  //         .required("Seller ID is required")
+  //         .test(
+  //           "is-valid-objectid",
+  //           "Seller ID must be a valid ObjectId",
+  //           isValidObjectId
+  //         ),
+  //       price: yup
+  //         .number()
+  //         .required("Price is required")
+  //         .positive("Price must be a positive number"),
+  //       stock: yup
+  //         .number()
+  //         .required("Stock is required")
+  //         .min(0, "Stock must be a non-negative number"),
+  //     })
+  //   )
+  //   .min(1, "At least one seller is required"),
 
-  customFields: yup
+  customFilters: yup
     .object()
     .test(
-      "customFieldsCheck",
-      "customFields must be an object with key-value pairs",
+      "customFiltersCheck",
+      "customFilters must be an object with key-value pairs",
       (value) => value === undefined || typeof value === "object"
     ),
 
