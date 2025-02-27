@@ -9,4 +9,9 @@ router
   .get(auth, controller.getAllSellerRequest)
   .post(auth, roleGaurd("SELLER"), controller.createSellerRequest);
 
+router
+  .route("/:id")
+  .delete(auth, roleGaurd("SELLER"), controller.deleteSellerRequest)
+  .patch(auth, roleGaurd("ADMIN"), controller.updateSellerRequest);
+
 module.exports = router;

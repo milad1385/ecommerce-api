@@ -66,7 +66,52 @@ exports.createSellerRequest = async (req, res, next) => {
       message: "Seller request sent successfully :)",
       sellerRequest: newSellerRequest,
     });
-  
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.deleteSellerRequest = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 422, "Please send valid id !!!");
+    }
+
+    const user = req.user;
+
+    const sellerRequest = await SellerRequest.findOne({ _id: id });
+
+    if (user._id.toString() !== sellerRequest.seller.toString()) {
+      return errorResponse(
+        res,
+        403,
+        "You can't delete some one else request !!!"
+      );
+    }
+
+    if (sellerRequest.status !== "pending") {
+      return errorResponse(
+        res,
+        403,
+        "You can't delete accepted or rejected request !!!"
+      );
+    }
+
+    const deletedRequest = await SellerRequest.findByIdAndDelete(id);
+
+    return successResponse(res, 200, {
+      message: "seller request deleted successfully :)",
+      sellerRequest: deletedRequest,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.updateSellerRequest = async (req, res, next) => {
+  try {
   } catch (error) {
     next(error);
   }
