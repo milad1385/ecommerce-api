@@ -6,9 +6,44 @@ const {
   createSellerRequestValidator,
 } = require("../validators/sellerRequest.validator");
 const { isValidObjectId } = require("mongoose");
+const { createPagination } = require("../utils/pagination");
 
 exports.getAllSellerRequest = async (req, res, next) => {
   try {
+    const { page = 1, limit = 10, status = "pending" } = req.params;
+
+    const user = req.user;
+
+    const seller = await Seller.findOne({ user: user._id });
+
+    if (!seller) {
+      return errorResponse(res, 404, "Seller not found !!");
+    }
+
+    let filter = {
+      seller: user._id,
+      status,
+    };
+
+    const sellerRequestCount = await SellerRequest.countDocuments({
+      seller: user._id,
+    });
+
+    const sellerRequests = await SellerRequest.find(filter)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return successResponse(res, 200, {
+      sellerRequests,
+      pagination: createPagination(
+        page,
+        limit,
+        sellerRequestCount,
+        "SellerRequests"
+      ),
+    });
   } catch (error) {
     next(error);
   }
