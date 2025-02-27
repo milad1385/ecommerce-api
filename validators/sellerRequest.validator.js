@@ -30,13 +30,18 @@ const createSellerRequestValidator = yup.object().shape({
     .required("periority is required")
     .integer("periority must be an integer")
     .oneOf([1, 2, 3], "periority must be 1 or 2 or 3 !!!"),
+
+  discount: yup
+    .number()
+    .required("periority is required")
+    .integer("periority must be an integer"),
 });
 
 const updateSellerRequestValidator = yup.object().shape({
   status: yup
     .string()
     .required("Status is required")
-    .oneOf(["approve", "reject"]),
+    .oneOf(["accept", "reject"]),
 
   adminComments: yup
     .string()

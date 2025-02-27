@@ -4,6 +4,7 @@ const Seller = require("../models/seller");
 const Product = require("../models/product");
 const {
   createSellerRequestValidator,
+  updateSellerRequestValidator,
 } = require("../validators/sellerRequest.validator");
 const { isValidObjectId } = require("mongoose");
 const { createPagination } = require("../utils/pagination");
@@ -51,7 +52,7 @@ exports.getAllSellerRequest = async (req, res, next) => {
 
 exports.createSellerRequest = async (req, res, next) => {
   try {
-    const { productId, price, stock, periority } = req.body;
+    const { productId, price, stock, periority, discount } = req.body;
 
     const user = req.user;
 
@@ -78,6 +79,7 @@ exports.createSellerRequest = async (req, res, next) => {
     const existingSellerRequest = await SellerRequest.findOne({
       product: productId,
       seller: seller._id,
+      status: { $in: ["accepted", "rejected"] },
     });
 
     if (existingSellerRequest) {
@@ -95,6 +97,7 @@ exports.createSellerRequest = async (req, res, next) => {
       stock,
       status: "pending",
       periority,
+      discount: discount <= 100 ? discount : 0,
     });
 
     return successResponse(res, 201, {
@@ -147,6 +150,69 @@ exports.deleteSellerRequest = async (req, res, next) => {
 
 exports.updateSellerRequest = async (req, res, next) => {
   try {
+    const { id } = req.params;
+
+    const { adminComment, status } = req.body;
+
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 422, "Please send valid id !!!");
+    }
+
+    await updateSellerRequestValidator.validate(req.body, {
+      abortEarly: false,
+    });
+
+    const sellerRequest = await SellerRequest.findById(id);
+
+    if (!sellerRequest) {
+      return errorResponse(res, 404, "Seller request is not found !!!");
+    }
+
+    if (status === "reject") {
+      sellerRequest.status = "rejected";
+
+      if (adminComment) {
+        sellerRequest.adminComment = adminComment;
+      }
+    } else {
+      const product = await Product.findOne({ _id: sellerRequest._id });
+
+      if (!product) {
+        return errorResponse(res, 404, "Product not found !!!");
+      }
+
+      const isExistSeller = product.sellers.find(
+        (selerItem) =>
+          selerItem.seller.toString() === sellerRequest.seller.toString()
+      );
+
+      if (isExistSeller) {
+        return errorResponse(res, 400, "This seller is already existed !!!");
+      }
+
+      if (adminComment) {
+        sellerRequest.adminComment = adminComment;
+      }
+
+      product.sellers.push({
+        discount: sellerRequest.discount,
+        price: sellerRequest.price,
+        seller: sellerRequest.seller,
+        stock: sellerRequest.stock,
+      });
+
+      await product.save();
+
+      sellerRequest.status = "accepted";
+
+      await sellerRequest.save();
+
+      return successResponse(res, 200, {
+        message:
+          "Seller request accepted successfully and seller added in product sellers",
+        sellerRequest,
+      });
+    }
   } catch (error) {
     next(error);
   }
