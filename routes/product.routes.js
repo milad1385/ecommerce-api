@@ -19,6 +19,7 @@ router
 router
   .route("/:id")
   .delete(auth, roleGaurd("ADMIN"), controller.delete)
-  .get(controller.getOne);
+  .get(controller.getOne)
+  .put(auth, roleGaurd("ADMIN"), upload.array("images", 10), controller.update);
 
 module.exports = router;
