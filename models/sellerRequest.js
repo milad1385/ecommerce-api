@@ -34,6 +34,13 @@ const schema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+
+    periority: {
+      type: Number,
+      required: true,
+      enum: [1, 2, 3],
+      default: 3,
+    },
   },
   { timestamps: true }
 );
