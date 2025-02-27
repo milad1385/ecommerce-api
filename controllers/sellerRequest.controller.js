@@ -64,7 +64,7 @@ exports.createSellerRequest = async (req, res, next) => {
       abortEarly: false,
     });
 
-    const seller = await Seller.findOne({ _id: user._id });
+    const seller = await Seller.findOne({ user: user._id });
 
     if (!seller) {
       return errorResponse(res, 404, "Seller not found !!!");
@@ -79,7 +79,7 @@ exports.createSellerRequest = async (req, res, next) => {
     const existingSellerRequest = await SellerRequest.findOne({
       product: productId,
       seller: seller._id,
-      status: { $in: ["accepted", "rejected"] },
+      status: { $in: ["accepted", "pending"] },
     });
 
     if (existingSellerRequest) {
@@ -174,8 +174,15 @@ exports.updateSellerRequest = async (req, res, next) => {
       if (adminComment) {
         sellerRequest.adminComment = adminComment;
       }
+
+      await sellerRequest.save();
+
+      return successResponse(res, 200, {
+        message: "Seller request rejected successfully :)",
+        sellerRequest,
+      });
     } else {
-      const product = await Product.findOne({ _id: sellerRequest._id });
+      const product = await Product.findOne({ _id: sellerRequest.product });
 
       if (!product) {
         return errorResponse(res, 404, "Product not found !!!");

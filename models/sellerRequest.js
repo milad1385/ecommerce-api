@@ -36,7 +36,6 @@ const schema = new mongoose.Schema(
     },
     adminComment: {
       type: String,
-      required: true,
       trim: true,
     },
 
