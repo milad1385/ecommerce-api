@@ -9,6 +9,7 @@ const locationRouter = require("./routes/location.routes");
 const categoryRouter = require("./routes/category.routes");
 const productRouter = require("./routes/product.routes.js");
 const noteRouter = require("./routes/note.routes.js");
+const errorHandler = require("./middlewares/errorHandler.js");
 
 app.use(express.urlencoded({ extended: false, limit: "30mb" }));
 app.use(express.json({ limit: "30mb" }));
@@ -32,9 +33,6 @@ app.use((req, res) => {
   });
 });
 
-// app.use((err, req, res, next) => {
-//   console.error('Error:', err.message);
-//   res.status(500).send('An error occurred during file upload');
-// });
+app.use(errorHandler);
 
 module.exports = app;
