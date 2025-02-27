@@ -40,6 +40,11 @@ const commentSchema = new mongoose.Schema(
     reply: {
       type: [replyCommentSchema],
     },
+    status: {
+      type: String,
+      enum: ["accepted", "rejected", "pending"],
+      default : "pending"
+    },
   },
   { timestamps: true }
 );
