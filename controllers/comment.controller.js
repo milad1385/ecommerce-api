@@ -74,6 +74,22 @@ exports.getAllComments = async (req, res, next) => {
 
 exports.deleteComment = async (req, res, next) => {
   try {
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 422, "CommentId is not valid !!!");
+    }
+
+    const deletedComment = await Comment.findByIdAndDelete(id);
+
+    if (!deletedComment) {
+      return errorResponse(res, 404, "Comment not found !!!");
+    }
+
+    return successResponse(res, 200, {
+      message: "Comment deleted successfully :)",
+      comment: deletedComment,
+    });
   } catch (error) {
     next(error);
   }
