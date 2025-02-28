@@ -1,7 +1,10 @@
 const { isValidObjectId } = require("mongoose");
 const { errorResponse, successResponse } = require("../helpers/responses");
 const Product = require("../models/product");
-const { createCommentValidator } = require("../validators/comment.validator");
+const {
+  createCommentValidator,
+  acceptOrRejectCommentValidator,
+} = require("../validators/comment.validator");
 const Comment = require("../models/comment");
 const { createPagination } = require("../utils/pagination");
 
@@ -95,8 +98,38 @@ exports.deleteComment = async (req, res, next) => {
   }
 };
 
-exports.updateComment = async (req, res, next) => {
+exports.acceptOrRejectComment = async (req, res, next) => {
   try {
+    const { id } = req.params;
+
+    const { status } = req.body;
+
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 422, "CommentId is not valid !!!");
+    }
+
+    await acceptOrRejectCommentValidator.validate(req.body, {
+      abortEarly: false,
+    });
+
+    const comment = await Comment.findOne({ _id: id });
+
+    if (!comment) {
+      return errorResponse(res, 404, "Comment not found !!!");
+    }
+
+    if (status === "reject") {
+      comment.status = "rejected";
+    } else {
+      comment.status = "accepted";
+    }
+
+    await comment.save();
+
+    return successResponse(res, 200, {
+      message: `Comment ${status}ed successfully :)`,
+      [`${status}ed comment`]: comment,
+    });
   } catch (error) {
     next(error);
   }

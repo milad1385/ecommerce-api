@@ -12,3 +12,9 @@ exports.createCommentValidator = yup.object({
     .max(5, "maximum number is 5"),
 });
 
+exports.acceptOrRejectCommentValidator = yup.object({
+  status: yup
+    .string()
+    .oneOf(["accept", "reject"])
+    .required("status is required !!!"),
+});
