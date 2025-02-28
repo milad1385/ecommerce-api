@@ -4,6 +4,7 @@ const Product = require("../models/product");
 const {
   createCommentValidator,
   acceptOrRejectCommentValidator,
+  createReplyCommentValidator,
 } = require("../validators/comment.validator");
 const Comment = require("../models/comment");
 const { createPagination } = require("../utils/pagination");
@@ -138,6 +139,37 @@ exports.acceptOrRejectComment = async (req, res, next) => {
 
 exports.createReplyComment = async (req, res, next) => {
   try {
+    const user = req.user;
+    const { content } = req.body;
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 422, "Please send valid id !!!");
+    }
+
+    await createReplyCommentValidator.validate(req.body, { abortEarly: false });
+
+    const comment = await Comment.findByIdAndUpdate(
+      { _id: id },
+      {
+        $push: {
+          replies: {
+            user,
+            content,
+          },
+        },
+      },
+      { new: true }
+    );
+
+    if (!comment) {
+      return errorResponse(res, 404, "Comment not found !!!");
+    }
+
+    return successResponse(res, 200, {
+      message: "reply comment added successfully :)",
+      comment,
+    });
   } catch (error) {
     next(error);
   }

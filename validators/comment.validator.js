@@ -18,3 +18,7 @@ exports.acceptOrRejectCommentValidator = yup.object({
     .oneOf(["accept", "reject"])
     .required("status is required !!!"),
 });
+
+exports.createReplyCommentValidator = yup.object({
+  content: yup.string().required("content is required !!!"),
+});
