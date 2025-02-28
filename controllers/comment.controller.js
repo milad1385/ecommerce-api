@@ -64,7 +64,8 @@ exports.getAllComments = async (req, res, next) => {
       status: "accepted",
     })
       .skip((page - 1) * limit)
-      .limit(limit);
+      .limit(limit)
+      .populate("product replies.user");
 
     return successResponse(res, 200, {
       comments,
