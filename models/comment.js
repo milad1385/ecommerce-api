@@ -37,13 +37,14 @@ const commentSchema = new mongoose.Schema(
       max: 5,
       default: 5,
     },
-    reply: {
+    replies: {
       type: [replyCommentSchema],
+      default: [],
     },
     status: {
       type: String,
       enum: ["accepted", "rejected", "pending"],
-      default : "pending"
+      default: "pending",
     },
   },
   { timestamps: true }
