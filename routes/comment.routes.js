@@ -17,6 +17,8 @@ router
   .patch(auth, roleGaurd("ADMIN"), controller.acceptOrRejectComment)
   .put(auth, roleGaurd("ADMIN"), controller.updateComment);
 
+router.route("/:id/user").get(auth, controller.getUserComments);
+
 router.route("/:id/reply").post(auth, controller.createReplyComment);
 
 router

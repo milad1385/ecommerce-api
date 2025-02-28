@@ -106,6 +106,37 @@ exports.getAllComments = async (req, res, next) => {
   }
 };
 
+exports.getUserComments = async (req, res, next) => {
+  try {
+    const user = req.user;
+
+    const { status = "all", page = 1, limit = 10 } = req.query;
+
+    let filters = { user: user._id };
+
+    if (status !== "all") {
+      filters = {
+        ...filters,
+        status,
+      };
+    }
+
+    const commentsCount = await Comment.countDocuments(filters);
+
+    const comments = await Comment.find(filters)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .populate("product replies.user", "name username phone roles");
+
+    return successResponse(res, 200, {
+      comments,
+      pagination: createPagination(page, limit, commentsCount, "Comments"),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.deleteComment = async (req, res, next) => {
   try {
     const { id } = req.params;
