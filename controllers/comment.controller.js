@@ -41,7 +41,7 @@ exports.createComment = async (req, res, next) => {
   }
 };
 
-exports.getAllComments = async (req, res, next) => {
+exports.getProductComments = async (req, res, next) => {
   try {
     const { productId, page = 1, limit = 10 } = req.query;
 
@@ -67,6 +67,34 @@ exports.getAllComments = async (req, res, next) => {
       .skip((page - 1) * limit)
       .limit(limit)
       .populate("product replies.user");
+
+    return successResponse(res, 200, {
+      comments,
+      pagination: createPagination(page, limit, commentsCount, "Comments"),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getAllComments = async (req, res, next) => {
+  try {
+    const { status = "all", page = 1, limit = 10 } = req.query;
+
+    let filters = {};
+
+    if (status !== "all") {
+      filters = {
+        status,
+      };
+    }
+
+    const commentsCount = await Comment.countDocuments(filters);
+
+    const comments = await Comment.find(filters)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .populate("product replies.user", "name username phone roles");
 
     return successResponse(res, 200, {
       comments,

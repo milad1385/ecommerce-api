@@ -13,7 +13,8 @@ router
 router
   .route("/:id")
   .delete(auth, roleGaurd("ADMIN"), controller.deleteComment)
-  .patch(auth, roleGaurd("ADMIN"), controller.acceptOrRejectComment);
+  .patch(auth, roleGaurd("ADMIN"), controller.acceptOrRejectComment)
+  .get(controller.getProductComments);
 
 router.route("/:id/reply").post(auth, controller.createReplyComment);
 
