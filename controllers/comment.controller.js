@@ -5,6 +5,7 @@ const {
   createCommentValidator,
   acceptOrRejectCommentValidator,
   createReplyCommentValidator,
+  updateCommentValidator,
 } = require("../validators/comment.validator");
 const Comment = require("../models/comment");
 const { createPagination } = require("../utils/pagination");
@@ -159,6 +160,39 @@ exports.acceptOrRejectComment = async (req, res, next) => {
     return successResponse(res, 200, {
       message: `Comment ${status}ed successfully :)`,
       [`${status}ed comment`]: comment,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.updateComment = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 422, "Please send valid id !!!");
+    }
+
+    const { content } = req.body;
+
+    await updateCommentValidator.validate(req.body);
+
+    const updatedComment = await Comment.findOneAndUpdate(
+      { _id: id },
+      {
+        content,
+      },
+      { new: true }
+    );
+
+    if (!updatedComment) {
+      return errorResponse(res, 404, "Comment not found !!!");
+    }
+
+    return successResponse(res, 200, {
+      message: "Comment update successfully :)",
+      comment: updatedComment,
     });
   } catch (error) {
     next(error);

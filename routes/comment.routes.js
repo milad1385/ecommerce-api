@@ -12,9 +12,10 @@ router
 
 router
   .route("/:id")
+  .get(controller.getProductComments)
   .delete(auth, roleGaurd("ADMIN"), controller.deleteComment)
   .patch(auth, roleGaurd("ADMIN"), controller.acceptOrRejectComment)
-  .get(controller.getProductComments);
+  .put(auth, roleGaurd("ADMIN"), controller.updateComment);
 
 router.route("/:id/reply").post(auth, controller.createReplyComment);
 
