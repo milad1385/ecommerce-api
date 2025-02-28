@@ -195,6 +195,7 @@ exports.deleteReplyComment = async (req, res, next) => {
 
     return successResponse(res, 200, {
       message: "reply comment deleted successfully :)",
+      comment,
     });
   } catch (error) {
     next(error);
@@ -203,6 +204,32 @@ exports.deleteReplyComment = async (req, res, next) => {
 
 exports.updateReplyComment = async (req, res, next) => {
   try {
+    const { id, replyId } = req.params;
+
+    const { content } = req.body;
+
+    if (!isValidObjectId(id) || !isValidObjectId(replyId)) {
+      return errorResponse(res, 422, "Please send valid id !!!");
+    }
+
+    await createReplyCommentValidator.validate(req.body, { abortEarly: false });
+
+    const comment = await Comment.findOne({ _id: id });
+
+    const replyComment = comment.replies.id(replyId);
+
+    if (!replyComment) {
+      return errorResponse(res, 404, "Reply comment not found !!!");
+    }
+
+    replyComment.content = content || replyComment.content;
+
+    const updatedComment = await comment.save();
+
+    return successResponse(res, 200, {
+      message: "reply comment upated successfully :)",
+      comment: updatedComment,
+    });
   } catch (error) {
     next(error);
   }
