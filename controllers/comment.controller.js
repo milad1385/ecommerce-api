@@ -3,6 +3,7 @@ const { errorResponse, successResponse } = require("../helpers/responses");
 const Product = require("../models/product");
 const { createCommentValidator } = require("../validators/comment.validator");
 const Comment = require("../models/comment");
+const { createPagination } = require("../utils/pagination");
 
 exports.createComment = async (req, res, next) => {
   try {
@@ -38,6 +39,34 @@ exports.createComment = async (req, res, next) => {
 
 exports.getAllComments = async (req, res, next) => {
   try {
+    const { productId, page = 1, limit = 10 } = req.query;
+
+    if (!isValidObjectId(productId)) {
+      return errorResponse(res, 422, "Please sent valid product Id !!!");
+    }
+
+    const product = await Product.findOne({ _id: productId });
+
+    if (!product) {
+      return errorResponse(res, 404, "Product not found !!!");
+    }
+
+    const commentsCount = await Comment.countDocuments({
+      product: productId,
+      status: "accepted",
+    });
+
+    const comments = await Comment.find({
+      product: productId,
+      status: "accepted",
+    })
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    return successResponse(res, 200, {
+      comments,
+      pagination: createPagination(page, limit, commentsCount, "Comments"),
+    });
   } catch (error) {
     next(error);
   }
