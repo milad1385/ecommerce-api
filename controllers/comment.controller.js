@@ -177,6 +177,25 @@ exports.createReplyComment = async (req, res, next) => {
 
 exports.deleteReplyComment = async (req, res, next) => {
   try {
+    const { id, replyId } = req.params;
+
+    if (!isValidObjectId(id) || !isValidObjectId(replyId)) {
+      return errorResponse(res, 422, "Please send valid id !!!");
+    }
+
+    const comment = await Comment.findByIdAndUpdate(
+      id,
+      {
+        $pull: {
+          replies: { _id: replyId },
+        },
+      },
+      { new: true }
+    );
+
+    return successResponse(res, 200, {
+      message: "reply comment deleted successfully :)",
+    });
   } catch (error) {
     next(error);
   }
