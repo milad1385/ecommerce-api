@@ -20,6 +20,10 @@ const cartItemsSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  discount: {
+    type: Number,
+    required: true,
+  },
 });
 
 const cartSchema = new mongoose.Schema(
