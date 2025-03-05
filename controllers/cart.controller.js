@@ -1,8 +1,8 @@
 const Cart = require("../models/cart");
+const { addToCartValidator } = require("../validators/cart.validator");
 
 exports.addToCart = async (req, res, next) => {
   try {
-    
   } catch (error) {
     next(error);
   }
