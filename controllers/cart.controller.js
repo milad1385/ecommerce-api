@@ -149,3 +149,49 @@ exports.getAllCart = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.decreaseQty = async (req, res, next) => {
+  try {
+    const { itemId } = req.params;
+    const user = req.user;
+
+    if (!isValidObjectId(itemId)) {
+      return errorResponse(res, 404, "Item id is not valid !!!");
+    }
+
+    const cart = await Cart.findOne({ user: user._id });
+
+    if (!cart) {
+      return errorResponse(res, 404, "Cart not found !!!");
+    }
+
+    const existingItem = cart.items.id(itemId);
+
+    if (!existingItem) {
+      return errorResponse(res, 404, "Item is not found !!!");
+    }
+
+    if (existingItem.quantity === 1) {
+      const carts = await Cart.findOneAndUpdate(
+        { user: user._id },
+        {
+          $pull: { items: existingItem._id },
+        },
+        { new: true }
+      );
+
+      return successResponse(res, 200, {
+        message: "This product removed successfully :)",
+        carts,
+      });
+    } else {
+      existingItem.quantity -= 1;
+    }
+
+    await cart.save();
+
+    return successResponse(res, 200, { cart });
+  } catch (error) {
+    next(error);
+  }
+};
