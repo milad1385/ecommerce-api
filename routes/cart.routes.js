@@ -4,7 +4,7 @@ const { auth } = require("../middlewares/auth");
 const router = express.Router();
 
 router.route("/add").post(auth, controller.addToCart);
-router.route("/remove").post(auth, controller.remove);
+router.route("/remove").post(auth, controller.removeFromCart);
 router.route("/").get(auth, controller.getAllCarts);
 
 module.exports = router;

@@ -2,7 +2,10 @@ const { isValidObjectId } = require("mongoose");
 const Cart = require("../models/cart");
 const Product = require("../models/product");
 const Seller = require("../models/seller");
-const { addToCartValidator } = require("../validators/cart.validator");
+const {
+  addToCartValidator,
+  removeFromCartValidator,
+} = require("../validators/cart.validator");
 const { errorResponse, successResponse } = require("../helpers/responses");
 
 exports.addToCart = async (req, res, next) => {
@@ -90,8 +93,42 @@ exports.addToCart = async (req, res, next) => {
   }
 };
 
-exports.remove = async (req, res, next) => {
+exports.removeFromCart = async (req, res, next) => {
   try {
+    const { sellerId, productId } = req.body;
+
+    const user = req.user;
+
+    if (!isValidObjectId(sellerId) || !isValidObjectId(productId)) {
+      return errorResponse(res, 400, "Seller or Product id is not correct !!");
+    }
+
+    await removeFromCartValidator.validate(req.body, { abortEarly: false });
+
+    const cart = await Cart.findOne({ user: user._id });
+
+    if (!cart) {
+      return errorResponse(res, 404, "User Cart not found !!!");
+    }
+
+    const cartIndex = cart.items.findIndex(
+      (item) =>
+        item.seller.toString() === sellerId.toString() &&
+        item.product.toString() === productId.toString()
+    );
+
+    if (cartIndex === -1) {
+      return errorResponse(res, 404, "Item not found !!!");
+    }
+
+    cart.items.splice(cartIndex, 1);
+
+    await cart.save();
+
+    return errorResponse(res, 200, {
+      message: "Cart removed successfully:))",
+      cart,
+    });
   } catch (error) {
     next(error);
   }
