@@ -134,8 +134,17 @@ exports.removeFromCart = async (req, res, next) => {
   }
 };
 
-exports.getAllCarts = async (req, res, next) => {
+exports.getAllCart = async (req, res, next) => {
   try {
+    const user = req.user;
+
+    const cart = await Cart.findOne({ user: user._id })
+      .populate("items.product")
+      .populate("items.seller");
+
+    return successResponse(res, 200, {
+      cart,
+    });
   } catch (error) {
     next(error);
   }
