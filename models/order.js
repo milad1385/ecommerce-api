@@ -24,52 +24,6 @@ const orderItemsSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-
-  shipping: {
-    postalCode: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    location: {
-      lat: {
-        type: Number,
-        required: true,
-      },
-      lan: {
-        type: Number,
-        required: true,
-      },
-    },
-
-    address: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    cityId: {
-      type: Number,
-      required: true,
-    },
-  },
-
-  authority: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-
-  postTrackingCode: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-
-  status: {
-    type: String,
-    enum: ["PROCESSING", "SHIPPED", "DELIVERED"],
-    default: "PROCESSING",
-  },
 });
 
 const orderSchema = new mongoose.Schema(
@@ -82,6 +36,52 @@ const orderSchema = new mongoose.Schema(
     items: {
       type: [orderItemsSchema],
       default: [],
+    },
+
+    shipping: {
+      postalCode: {
+        type: String,
+        required: true,
+        trim: true,
+      },
+      location: {
+        lat: {
+          type: Number,
+          required: true,
+        },
+        lan: {
+          type: Number,
+          required: true,
+        },
+      },
+
+      address: {
+        type: String,
+        required: true,
+        trim: true,
+      },
+      cityId: {
+        type: Number,
+        required: true,
+      },
+    },
+
+    authority: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    postTrackingCode: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    status: {
+      type: String,
+      enum: ["PROCESSING", "SHIPPED", "DELIVERED"],
+      default: "PROCESSING",
     },
   },
   { timestamps: true }
