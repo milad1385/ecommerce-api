@@ -12,6 +12,7 @@ const noteRouter = require("./routes/note.routes.js");
 const sellerRequestRouter = require("./routes/sellerRequest.routes.js");
 const commentRouter = require("./routes/comment.routes.js");
 const cartRouter = require("./routes/cart.routes.js");
+const orderRouter = require("./routes/order.routes.js");
 const errorHandler = require("./middlewares/errorHandler.js");
 const { redirectToProduct } = require("./controllers/shortLink.controller.js");
 
@@ -30,7 +31,8 @@ app.use("/api/product", productRouter);
 app.use("/api/note", noteRouter);
 app.use("/api/seller-request", sellerRequestRouter);
 app.use("/api/comment", commentRouter);
-app.use("/api/cart" , cartRouter)
+app.use("/api/cart", cartRouter);
+app.use("/api/order", orderRouter);
 app.get("/p/:shortIdentifier", redirectToProduct);
 
 app.use((req, res) => {
