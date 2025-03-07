@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const orderItemsSchema = new mongoose.Schema({
+const checkoutItemsSchema = new mongoose.Schema({
   product: {
     type: mongoose.Types.ObjectId,
     ref: "Product",
@@ -24,48 +24,6 @@ const orderItemsSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-
-  shipping: {
-    postalCode: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    location: {
-      lat: {
-        type: Number,
-        required: true,
-      },
-      lan: {
-        type: Number,
-        required: true,
-      },
-    },
-
-    address: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    cityId: {
-      type: Number,
-      required: true,
-    },
-  },
-
-  authority: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-
-  postTrackingCode: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-
-  
 });
 
 const checkoutSchema = new mongoose.Schema(
@@ -76,11 +34,52 @@ const checkoutSchema = new mongoose.Schema(
       required: true,
     },
     items: {
-      type: [orderItemsSchema],
+      type: [checkoutItemsSchema],
       default: [],
+    },
+    shipping: {
+      postalCode: {
+        type: String,
+        required: true,
+        trim: true,
+      },
+      location: {
+        lat: {
+          type: Number,
+          required: true,
+        },
+        lan: {
+          type: Number,
+          required: true,
+        },
+      },
+
+      address: {
+        type: String,
+        required: true,
+        trim: true,
+      },
+      cityId: {
+        type: Number,
+        required: true,
+      },
+    },
+
+    authority: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    expiresAt: {
+      type: Date,
+      required: true,
+      default: () => Date.now() * 60 * 60 * 1000, // 1 Hour from creation
     },
   },
   { timestamps: true }
 );
+
+checkoutSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 module.exports = mongoose.model("Checkout", checkoutSchema);
