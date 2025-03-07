@@ -87,4 +87,12 @@ const orderSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+orderSchema.virtual("totalPrice").get(function () {
+  return this.items.reduce(
+    (total, item) =>
+      total + (item.price - (item.price * item.discount) / 100) * item.quantity,
+    0
+  );
+});
+
 module.exports = mongoose.model("Order", orderSchema);

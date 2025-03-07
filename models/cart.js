@@ -41,6 +41,14 @@ const cartSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+cartSchema.virtual("totalPrice").get(function () {
+  return this.items.reduce(
+    (total, item) =>
+      total + (item.price - (item.price * item.discount) / 100) * item.quantity,
+    0
+  );
+});
+
 cartSchema.pre("save", (next) => {
   this.updatedAt = Date.now();
   next();

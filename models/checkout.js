@@ -80,6 +80,14 @@ const checkoutSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+checkoutSchema.virtual("totalPrice").get(function () {
+  return this.items.reduce(
+    (total, item) =>
+      total + (item.price - (item.price * item.discount) / 100) * item.quantity,
+    0
+  );
+});
+
 checkoutSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 module.exports = mongoose.model("Checkout", checkoutSchema);
