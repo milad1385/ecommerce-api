@@ -1,4 +1,4 @@
-const { isValidObjectId } = require("mongoose");
+const { isValidObjectId, default: mongoose } = require("mongoose");
 const { errorResponse, successResponse } = require("../helpers/responses");
 const SubCategory = require("../models/subCategory");
 const {
@@ -9,6 +9,7 @@ const { nanoid } = require("nanoid");
 const Product = require("../models/product");
 const fs = require("fs");
 const Note = require("../models/note");
+const { createPagination } = require("../utils/pagination");
 
 const supportedFormat = [
   "image/jpeg",
@@ -52,9 +53,9 @@ exports.create = async (req, res, next) => {
       return errorResponse(res, 422, "Please send valid subCategory id");
     }
 
-    const isExsitSubCategory = await SubCategory.findOne({ _id: subCategory });
+    const isExistSubCategory = await SubCategory.findOne({ _id: subCategory });
 
-    if (!isExsitSubCategory) {
+    if (!isExistSubCategory) {
       return errorResponse(res, 404, "subCategory is not found !!!");
     }
 
@@ -242,6 +243,93 @@ exports.getOne = async (req, res, next) => {
     }
     return successResponse(res, 200, {
       product,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getAll = async (req, res, next) => {
+  try {
+    let {
+      name,
+      subCategory,
+      minPrice,
+      maxPrice,
+      sellerId,
+      filterValues,
+      page = 1,
+      limit = 10,
+    } = req.query;
+
+    page = +page;
+    limit = +limit;
+
+    const filters = {
+      "seller.stock": { $gt: 0 },
+    };
+
+    if (name) {
+      filters.name = { $regex: name, $options: "i" };
+    }
+
+    if (subCategory) {
+      filters.subCategory =
+        mongoose.Types.ObjectId.createFromHexString(subCategory);
+    }
+
+    if (minPrice) {
+      filters["sellers.price"] = { $gte: +minPrice };
+    }
+
+    if (maxPrice) {
+      filters["sellers.price"] = { $lte: +maxPrice };
+    }
+
+    if (sellerId) {
+      filters["sellers.seller"] =
+        mongoose.Types.ObjectId.createFromHexString(sellerId);
+    }
+
+    if (filterValues) {
+      const parsedFilterValues = JSON.parse(filterValues);
+      Object.keys(filterValues).forEach((key) => {
+        filters[`filterValues.${key}`] = parsedFilterValues[key];
+      });
+    }
+
+    const products = await Product.aggregate([
+      {
+        $match: filters,
+      },
+      {
+        $lookup: {
+          from: "comments",
+          localField: "_id",
+          foreignField: "product",
+          as: "comments",
+        },
+      },
+      {
+        $addFields: {
+          ratingAvrage: {
+            $cond: {
+              if: { $gte: [{ $size: "$comments" }, 0] },
+              then: { $avg: `$comments.rating` },
+              else: 0,
+            },
+          },
+        },
+      },
+      { $skip: (page - 1) * limit },
+      { $limit: limit },
+    ]);
+
+    const totalProducts = await Product.countDocuments(filters);
+
+    return successResponse(res, 200, {
+      products,
+      pagination: createPagination(page, limit, totalProducts, "Products"),
     });
   } catch (error) {
     next(error);

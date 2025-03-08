@@ -16,6 +16,8 @@ router
     controller.create
   );
 
+router.route("/all").get(controller.getAll);
+
 router
   .route("/:id")
   .delete(auth, roleGaurd("ADMIN"), controller.delete)
