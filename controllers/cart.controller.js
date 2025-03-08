@@ -178,7 +178,7 @@ exports.decreaseQty = async (req, res, next) => {
 
       return successResponse(res, 200, {
         message: "This product removed successfully :)",
-        carts,
+        cart,
       });
     } else {
       existingItem.quantity -= 1;
