@@ -12,7 +12,7 @@ exports.getAllBookmarks = async (req, res, next) => {
 
 exports.addToBookmark = async (req, res, next) => {
   try {
-    const { productId } = req.params;
+    const { productId } = req.body;
     const user = req.user;
 
     if (!isValidObjectId(productId)) {
@@ -50,6 +50,28 @@ exports.addToBookmark = async (req, res, next) => {
 
 exports.deleteFromBookmark = async (req, res, next) => {
   try {
+    const { productId } = req.body;
+    const user = req.user;
+
+    if (!isValidObjectId(productId)) {
+      return errorResponse(res, 400, "Product Id is not valid :(");
+    }
+
+    const product = await Product.findOne({ _id: productId });
+
+    if (!product) {
+      return errorResponse(res, 404, "This product is not found !!!");
+    }
+
+    const deletedBookmark = await Bookmark.findOneAndDelete({
+      user: user._id,
+      product: productId,
+    });
+
+    return successResponse(res, 200, {
+      message: "Bookmark removed successfully :)",
+      bookmark: deletedBookmark,
+    });
   } catch (error) {
     next(error);
   }
