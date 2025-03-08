@@ -50,10 +50,8 @@ exports.addToCart = async (req, res, next) => {
           {
             product: productId,
             seller: sellerId,
-            price:
-              sellerDetails.price -
-              (sellerDetails.discount * sellerDetails.price) / 100,
-            discount: (sellerDetails.discount * sellerDetails.price) / 100,
+            price: sellerDetails.price,
+            discount: sellerDetails.discount,
             quantity,
           },
         ],
@@ -77,10 +75,8 @@ exports.addToCart = async (req, res, next) => {
       cart.items.push({
         product: productId,
         seller: sellerId,
-        price:
-          sellerDetails.price -
-          (sellerDetails.discount * sellerDetails.price) / 100,
-        discount: (sellerDetails.discount * sellerDetails.price) / 100,
+        price: sellerDetails.price,
+        discount: sellerDetails.discount,
         quantity,
       });
     }
@@ -172,13 +168,13 @@ exports.decreaseQty = async (req, res, next) => {
     }
 
     if (existingItem.quantity === 1) {
-      const carts = await Cart.findOneAndUpdate(
-        { user: user._id },
-        {
-          $pull: { items: existingItem._id },
-        },
-        { new: true }
+      const cartIndex = cart.items.find(
+        (cartItem) => cartItem._id.toString() === itemId.toString()
       );
+
+      cart.items.splice(cartIndex, 1);
+
+      await cart.save();
 
       return successResponse(res, 200, {
         message: "This product removed successfully :)",
