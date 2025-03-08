@@ -40,7 +40,7 @@ exports.addToWishList = async (req, res, next) => {
 
     return successResponse(res, 200, {
       message: "Wish added successfully :)",
-      wish : newWish,
+      wish: newWish,
     });
   } catch (error) {
     next(error);
@@ -49,6 +49,28 @@ exports.addToWishList = async (req, res, next) => {
 
 exports.deleteFromWishList = async (req, res, next) => {
   try {
+    const { productId } = req.body;
+    const user = req.user;
+
+    if (!isValidObjectId(productId)) {
+      return errorResponse(res, 400, "Product Id is not valid :(");
+    }
+
+    const product = await Product.findOne({ _id: productId });
+
+    if (!product) {
+      return errorResponse(res, 404, "This product is not found !!!");
+    }
+
+    const deletedWishList = await WishList.findOneAndDelete({
+      user: user._id,
+      product: productId,
+    });
+
+    return successResponse(res, 200, {
+      message: "WishList removed successfully :)",
+      Wish: deletedWishList,
+    });
   } catch (error) {
     next(error);
   }
