@@ -5,6 +5,19 @@ const Product = require("../models/product");
 
 exports.getAllBookmarks = async (req, res, next) => {
   try {
+    const { page = 1, limit = 10 } = req.query;
+    const user = req.user;
+
+    const bookmarks = await Bookmark.find({ user: user._id })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .populate(
+        "user product",
+        "-addresses -filterValues -customFilters -sellers"
+      )
+      .sort({ createdAt: -1 });
+
+    return successResponse(res, 200, { bookmarks });
   } catch (error) {
     next(error);
   }
