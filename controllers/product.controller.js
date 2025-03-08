@@ -235,6 +235,8 @@ exports.getOne = async (req, res, next) => {
   try {
     const { id } = req.params;
 
+    const user = req.user;
+
     if (!isValidObjectId(id)) {
       return errorResponse(res, 422, "Please send valid id !!!");
     }
@@ -246,6 +248,22 @@ exports.getOne = async (req, res, next) => {
     if (!product) {
       return errorResponse(res, 404, "Product not found !!!");
     }
+
+    if (user) {
+      const bookmark = await Bookmark.findOne({
+        user: user._id,
+        product: product._id,
+      });
+      const wish = await WishList.findOne({
+        user: user._id,
+        product: product._id,
+      });
+
+      product.bookmark = bookmark ? true : false;
+      product.wish = wish ? true : false;
+    }
+
+    
     return successResponse(res, 200, {
       product,
     });

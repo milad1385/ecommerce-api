@@ -22,7 +22,7 @@ router.route("/all").get(loggedIn, controller.getAll);
 router
   .route("/:id")
   .delete(auth, roleGaurd("ADMIN"), controller.delete)
-  .get(controller.getOne)
+  .get(loggedIn, controller.getOne)
   .put(auth, roleGaurd("ADMIN"), upload.array("images", 10), controller.update);
 
 module.exports = router;
