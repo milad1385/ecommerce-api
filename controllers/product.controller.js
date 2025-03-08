@@ -14,7 +14,6 @@ const fs = require("fs");
 const { createPagination } = require("../utils/pagination");
 const Category = require("../models/category");
 
-
 const supportedFormat = [
   "image/jpeg",
   "image/png",
@@ -243,9 +242,9 @@ exports.getOne = async (req, res, next) => {
       return errorResponse(res, 422, "Please send valid id !!!");
     }
 
-    const product = await Product.findOne({ _id: id }).populate(
-      "subCategory sellers.seller"
-    );
+    const product = await Product.findOne({ _id: id })
+      .populate("subCategory sellers.seller")
+      .lean();
 
     if (!product) {
       return errorResponse(res, 404, "Product not found !!!");
@@ -262,12 +261,12 @@ exports.getOne = async (req, res, next) => {
       });
 
       const note = await Note.findOne({ user: user._id, product: product._id });
-      product.note = note ? note : false;
+
+      product.note = note ? note : null;
 
       product.bookmark = bookmark ? true : false;
       product.wish = wish ? true : false;
     }
-
 
     const breadcrumbs = {};
 
@@ -290,20 +289,9 @@ exports.getOne = async (req, res, next) => {
         title: endCategory.title,
         _id: endCategory._id,
       };
-    } else {
-      breadcrumbs.category = {
-        title: parentOfEndCategory.title,
-        _id: parentOfEndCategory._id,
-      };
-      breadcrumbs.subCategory = null;
-      breadcrumbs.subSubCategory = {
-        title: endCategory.title,
-        _id: endCategory._id,
-      };
     }
 
     product.breadcrumbs = breadcrumbs;
-
 
     return successResponse(res, 200, {
       product,
