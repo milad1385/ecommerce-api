@@ -4,6 +4,19 @@ const WishList = require("../models/wish");
 const { errorResponse } = require("../helpers/responses");
 exports.getAllWishList = async (req, res, next) => {
   try {
+    const { page = 1, limit = 10 } = req.query;
+    const user = req.user;
+
+    const wishList = await WishList.find({ user: user._id })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .populate(
+        "user product",
+        "-addresses -filterValues -customFilters -sellers"
+      )
+      .sort({ createdAt: -1 });
+
+    return successResponse(res, 200, { wishList });
   } catch (error) {
     next(error);
   }
