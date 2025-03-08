@@ -249,4 +249,126 @@ exports.getOne = async (req, res, next) => {
   }
 };
 
+exports.getAll = async (req, res, next) => {
+  try {
+    const {
+      name,
+      categoryId,
+      minPrice,
+      maxPrice,
+      sellerId,
+      page = 1,
+      limit = 10,
+      ...filterValues
+    } = req.query;
 
+    const filters = await buildQuery(
+      name,
+      categoryId,
+      minPrice,
+      maxPrice,
+      sellerId,
+      filterValues
+    );
+
+    const products = await Product.aggregate([
+      {
+        $match: filters,
+      },
+      {
+        $lookup: {
+          from: "comments",
+          localField: "_id",
+          foreignField: "product",
+          as: "comments",
+        },
+      },
+      {
+        $addFields: {
+          ratingAvrage: {
+            $cond: {
+              if: { $gte: [{ $size: "$comments" }, 0] },
+              then: { $avg: `$comments.rating` },
+              else: 0,
+            },
+          },
+        },
+      },
+      {
+        $skip: (page - 1) * limit,
+      },
+      {
+        $limit: +limit,
+      },
+    ]);
+
+    const totalProducts = await Product.countDocuments(filters);
+
+    return successResponse(res, 200, {
+      products,
+      pagination: await createPagination(
+        page,
+        limit,
+        totalProducts,
+        "Products"
+      ),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const buildQuery = async (
+  name,
+  categoryId,
+  minPrice,
+  maxPrice,
+  sellerId,
+  filterValues
+) => {
+  const filters = {
+    "sellers.stock": { $gt: 0 },
+  };
+
+  if (name) {
+    filters.name = { $regex: name, $options: "i" };
+  }
+
+  if (minPrice) {
+    filters["sellers.price"] = { $gte: +minPrice };
+  }
+
+  if (maxPrice) {
+    filters["sellers.price"] = { $lte: +maxPrice };
+  }
+
+  if (sellerId) {
+    filters["sellers.seller"] =
+      mongoose.Types.ObjectId.createFromHexString(sellerId);
+  }
+
+  if (filterValues) {
+    Object.keys(filterValues).forEach((key) => {
+      filters[`filterValues.${key}`] = filterValues[key];
+    });
+  }
+
+  if (categoryId) {
+    const categories = await SubCategory.find().populate("parent");
+
+    const childCategories = [];
+    for (const category of categories) {
+      if (
+        category.parent?._id.toString() === categoryId ||
+        category.parent.parent?.toString() === categoryId ||
+        category._id.toString() === categoryId
+      ) {
+        childCategories.push(category._id);
+      }
+    }
+
+    filters.subCategory = { $in: childCategories };
+  }
+
+  return filters;
+};
