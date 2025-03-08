@@ -13,6 +13,7 @@ const Note = require("../models/note");
 const fs = require("fs");
 const { createPagination } = require("../utils/pagination");
 
+
 const supportedFormat = [
   "image/jpeg",
   "image/png",
@@ -258,12 +259,15 @@ exports.getOne = async (req, res, next) => {
         user: user._id,
         product: product._id,
       });
+      
+      const note = await Note.findOne({ user: user._id, product: product._id });
+      product.note = note ? note : false;
 
       product.bookmark = bookmark ? true : false;
       product.wish = wish ? true : false;
     }
 
-    
+
     return successResponse(res, 200, {
       product,
     });
