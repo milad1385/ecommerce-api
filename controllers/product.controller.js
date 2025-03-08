@@ -267,6 +267,8 @@ exports.getAll = async (req, res, next) => {
       ...filterValues
     } = req.query;
 
+    const user = req.user;
+
     const filters = await buildQuery(
       name,
       categoryId,
@@ -306,6 +308,27 @@ exports.getAll = async (req, res, next) => {
         $limit: +limit,
       },
     ]);
+
+    if (user) {
+      const bookmarks = await Bookmark.find({ user: user._id });
+      const wishes = await WishList.find({ user: user._id });
+
+      products.forEach((product) => {
+        bookmarks.forEach((bookmark) => {
+          if (product._id.toString() === bookmark.product.toString()) {
+            product.bookmark = true;
+          }
+        });
+      });
+
+      products.forEach((product) => {
+        wishes.forEach((wish) => {
+          if (product._id.toString() === wish.product.toString()) {
+            product.wish = true;
+          }
+        });
+      });
+    }
 
     const totalProducts = await Product.countDocuments(filters);
 

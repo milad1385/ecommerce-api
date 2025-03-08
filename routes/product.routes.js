@@ -3,6 +3,7 @@ const { auth } = require("../middlewares/auth");
 const { multerStorage } = require("../middlewares/multer");
 const roleGaurd = require("../middlewares/roleGaurd");
 const controller = require("../controllers/product.controller");
+const { loggedIn } = require("../middlewares/LoggedIn");
 const router = express.Router();
 
 const upload = multerStorage("public/images/products");
@@ -16,7 +17,7 @@ router
     controller.create
   );
 
-router.route("/all").get(controller.getAll);
+router.route("/all").get(loggedIn, controller.getAll);
 
 router
   .route("/:id")

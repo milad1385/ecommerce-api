@@ -1,7 +1,7 @@
 const { isValidObjectId } = require("mongoose");
 const Product = require("../models/product");
 const WishList = require("../models/wish");
-const { errorResponse } = require("../helpers/responses");
+const { errorResponse, successResponse } = require("../helpers/responses");
 exports.getAllWishList = async (req, res, next) => {
   try {
     const { page = 1, limit = 10 } = req.query;
