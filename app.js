@@ -14,6 +14,7 @@ const commentRouter = require("./routes/comment.routes.js");
 const cartRouter = require("./routes/cart.routes.js");
 const orderRouter = require("./routes/order.routes.js");
 const checkoutRouter = require("./routes/checkout.routes.js");
+const swaggerRouter = require("./routes/apiDoc.routes.js");
 const errorHandler = require("./middlewares/errorHandler.js");
 const { redirectToProduct } = require("./controllers/shortLink.controller.js");
 
@@ -36,6 +37,7 @@ app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/checkout", checkoutRouter);
 app.get("/p/:shortIdentifier", redirectToProduct);
+app.use("/apis", swaggerRouter);
 
 app.use((req, res) => {
   console.log("This path is not found: ", req.path);
