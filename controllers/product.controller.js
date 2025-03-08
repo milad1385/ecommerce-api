@@ -7,8 +7,10 @@ const {
 } = require("../validators/product.validator");
 const { nanoid } = require("nanoid");
 const Product = require("../models/product");
-const fs = require("fs");
+const Bookmark = require("../models/bookmark");
+const WishList = require("../models/wish");
 const Note = require("../models/note");
+const fs = require("fs");
 const { createPagination } = require("../utils/pagination");
 
 const supportedFormat = [
@@ -133,6 +135,9 @@ exports.delete = async (req, res, next) => {
     );
 
     await Note.deleteMany({ product: deletedProduct._id });
+
+    await Bookmark.deleteMany({ product: deletedProduct._id });
+    await WishList.deleteMany({ product: deletedProduct._id });
 
     return successResponse(res, 200, {
       message: "Product deleted successfully :)",
