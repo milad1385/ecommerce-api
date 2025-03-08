@@ -15,6 +15,7 @@ const cartRouter = require("./routes/cart.routes.js");
 const orderRouter = require("./routes/order.routes.js");
 const checkoutRouter = require("./routes/checkout.routes.js");
 const bookmarkRouter = require("./routes/bookmark.routes.js");
+const wishListRouter = require("./routes/wish.routes.js");
 const swaggerRouter = require("./routes/apiDoc.routes.js");
 const errorHandler = require("./middlewares/errorHandler.js");
 const { redirectToProduct } = require("./controllers/shortLink.controller.js");
@@ -38,6 +39,7 @@ app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/checkout", checkoutRouter);
 app.use("/api/bookmark", bookmarkRouter);
+app.use("/api/wish", wishListRouter);
 app.get("/p/:shortIdentifier", redirectToProduct);
 app.use("/apis", swaggerRouter);
 
