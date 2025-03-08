@@ -12,6 +12,7 @@ const WishList = require("../models/wish");
 const Note = require("../models/note");
 const fs = require("fs");
 const { createPagination } = require("../utils/pagination");
+const Category = require("../models/category");
 
 
 const supportedFormat = [
@@ -259,13 +260,49 @@ exports.getOne = async (req, res, next) => {
         user: user._id,
         product: product._id,
       });
-      
+
       const note = await Note.findOne({ user: user._id, product: product._id });
       product.note = note ? note : false;
 
       product.bookmark = bookmark ? true : false;
       product.wish = wish ? true : false;
     }
+
+
+    const breadcrumbs = {};
+
+    const endCategory = product.subCategory;
+
+    const parentOfEndCategory = await Category.findOne({
+      _id: endCategory.parent,
+    });
+
+    if (parentOfEndCategory.parent) {
+      const topCategory = await Category.findOne({
+        _id: parentOfEndCategory.parent,
+      });
+      breadcrumbs.category = { title: topCategory.title, _id: topCategory._id };
+      breadcrumbs.subCategory = {
+        title: parentOfEndCategory.title,
+        _id: parentOfEndCategory._id,
+      };
+      breadcrumbs.subSubCategory = {
+        title: endCategory.title,
+        _id: endCategory._id,
+      };
+    } else {
+      breadcrumbs.category = {
+        title: parentOfEndCategory.title,
+        _id: parentOfEndCategory._id,
+      };
+      breadcrumbs.subCategory = null;
+      breadcrumbs.subSubCategory = {
+        title: endCategory.title,
+        _id: endCategory._id,
+      };
+    }
+
+    product.breadcrumbs = breadcrumbs;
 
 
     return successResponse(res, 200, {
