@@ -1,5 +1,5 @@
-const { successResponse } = require("../helpers/responses");
-const errorHandler = require("../middlewares/errorHandler");
+const { isValidObjectId } = require("mongoose");
+const { successResponse, errorResponse } = require("../helpers/responses");
 const NewsLetter = require("../models/newsLetter");
 const { createPagination } = require("../utils/pagination");
 const {
@@ -39,7 +39,7 @@ exports.createNewsLetter = async (req, res, next) => {
     const isExistNewsLetter = await NewsLetter.findOne({ email });
 
     if (isExistNewsLetter) {
-      return errorHandler(res, 400, "This email is already exist !!!");
+      return errorResponse(res, 400, "This email is already exist !!!");
     }
 
     const newsLetter = await NewsLetter.create({
@@ -57,6 +57,22 @@ exports.createNewsLetter = async (req, res, next) => {
 
 exports.deleteNewsLetter = async (req, res, next) => {
   try {
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 400, "Please send valid id !!!");
+    }
+
+    const deletedNewsLetter = await NewsLetter.findOneAndDelete({ _id: id });
+
+    if (!deletedNewsLetter) {
+      return errorResponse(res, 404, "News letter is not found !!!");
+    }
+
+    return successResponse(res, 200, {
+      message: "newsletter deleted successfully :)",
+      newsLetter: deletedNewsLetter,
+    });
   } catch (error) {
     next(error);
   }
