@@ -28,6 +28,7 @@ exports.getAllNewsLetter = async (req, res, next) => {
 
 exports.createNewsLetter = async (req, res, next) => {
   try {
+    const { email } = req.body;
   } catch (error) {
     next(error);
   }
