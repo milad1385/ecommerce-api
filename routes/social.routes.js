@@ -18,6 +18,6 @@ router
     controller.createSocial
   );
 
-router.route("/:id").delete(auth, roleGaurd("ADMIN"), controller.deleteSocial);
+router.route("/:socialId").delete(auth, roleGaurd("ADMIN"), controller.deleteSocial);
 
 module.exports = router;

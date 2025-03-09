@@ -1,6 +1,8 @@
+const { isValidObjectId } = require("mongoose");
 const { successResponse, errorResponse } = require("../helpers/responses");
 const SocialMedia = require("../models/socialMedia");
 const { createSocialValidator } = require("../validators/social.validator");
+const fs = require("fs");
 
 const supportedFormats = [
   "image/jpeg",
@@ -13,7 +15,7 @@ const supportedFormats = [
 
 exports.getAll = async (req, res, next) => {
   try {
-    const socials = await Social.find({});
+    const socials = await SocialMedia.find({});
 
     return successResponse(res, 200, { socials });
   } catch (error) {
@@ -56,6 +58,26 @@ exports.createSocial = async (req, res, next) => {
 
 exports.deleteSocial = async (req, res, next) => {
   try {
+    const { socialId } = req.params;
+
+    if (!isValidObjectId(socialId)) {
+      return errorResponse(res, 400, "PLease send valid id");
+    }
+
+    const deletedSocial = await SocialMedia.findByIdAndDelete(socialId);
+
+    if (!deletedSocial) {
+      return errorResponse(res, 404, "Social is not found !!!");
+    }
+
+    fs.unlink(`public/images/socials/${deletedSocial.icon.filename}`, (err) =>
+      next(err)
+    );
+
+    return successResponse(res, 200, {
+      message: "social deleted successfully :)",
+      social: deletedSocial,
+    });
   } catch (error) {
     next(error);
   }
