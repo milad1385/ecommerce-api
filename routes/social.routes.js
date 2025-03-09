@@ -18,6 +18,9 @@ router
     controller.createSocial
   );
 
-router.route("/:socialId").delete(auth, roleGaurd("ADMIN"), controller.deleteSocial);
+router
+  .route("/:socialId")
+  .delete(auth, roleGaurd("ADMIN"), controller.deleteSocial)
+  .put(auth, roleGaurd("ADMIN"), controller.updateSocialMedia);
 
 module.exports = router;
