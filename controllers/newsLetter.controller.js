@@ -1,6 +1,10 @@
 const { successResponse } = require("../helpers/responses");
+const errorHandler = require("../middlewares/errorHandler");
 const NewsLetter = require("../models/newsLetter");
 const { createPagination } = require("../utils/pagination");
+const {
+  createNewsLetterValidator,
+} = require("../validators/newsLetter.validator");
 exports.getAllNewsLetter = async (req, res, next) => {
   try {
     const { page = 1, limit = 10 } = req.query;
@@ -29,6 +33,23 @@ exports.getAllNewsLetter = async (req, res, next) => {
 exports.createNewsLetter = async (req, res, next) => {
   try {
     const { email } = req.body;
+
+    await createNewsLetterValidator.validate(req.body, { abortEarly: false });
+
+    const isExistNewsLetter = await NewsLetter.findOne({ email });
+
+    if (isExistNewsLetter) {
+      return errorHandler(res, 400, "This email is already exist !!!");
+    }
+
+    const newsLetter = await NewsLetter.create({
+      email,
+    });
+
+    return successResponse(res, 200, {
+      message: "News Letter created successfully :)",
+      newsLetter,
+    });
   } catch (error) {
     next(error);
   }
