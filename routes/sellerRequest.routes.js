@@ -9,6 +9,8 @@ router
   .get(auth, controller.getUserSellerRequest)
   .post(auth, roleGaurd("SELLER"), controller.createSellerRequest);
 
+router.route("/all").get(auth , roleGaurd("ADMIN") , controller.getAllSellerRequest)
+
 router
   .route("/:id")
   .delete(auth, roleGaurd("SELLER"), controller.deleteSellerRequest)

@@ -109,6 +109,31 @@ exports.createSellerRequest = async (req, res, next) => {
   }
 };
 
+exports.getAllSellerRequest = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 10, status = "pending" } = req.params;
+    const sellerRequestCount = await SellerRequest.countDocuments({ status });
+
+    const sellerRequests = await SellerRequest.find({ status })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({ createdAt: -1 })
+      .lean();
+
+    return successResponse(res, 200, {
+      sellerRequests,
+      pagination: createPagination(
+        page,
+        limit,
+        sellerRequestCount,
+        "AllSellerRequests"
+      ),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.deleteSellerRequest = async (req, res, next) => {
   try {
     const { id } = req.params;
