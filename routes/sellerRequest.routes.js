@@ -6,7 +6,7 @@ const router = express.Router();
 
 router
   .route("/")
-  .get(auth, controller.getAllSellerRequest)
+  .get(auth, controller.getUserSellerRequest)
   .post(auth, roleGaurd("SELLER"), controller.createSellerRequest);
 
 router

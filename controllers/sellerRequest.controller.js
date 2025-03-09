@@ -9,7 +9,7 @@ const {
 const { isValidObjectId } = require("mongoose");
 const { createPagination } = require("../utils/pagination");
 
-exports.getAllSellerRequest = async (req, res, next) => {
+exports.getUserSellerRequest = async (req, res, next) => {
   try {
     const { page = 1, limit = 10, status = "pending" } = req.params;
 
