@@ -9,6 +9,5 @@ const schema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const model =mongoose.model("Department", schema);
+module.exports = mongoose.model("Department", schema);
 
-export default model;

@@ -14,6 +14,4 @@ const schema = new mongoose.Schema(
   { timestamps: true }
 );
 
-const model = mongoose.model("SubDepartment", schema);
-
-export default model;
+module.exports = mongoose.model("SubDepartment", schema);

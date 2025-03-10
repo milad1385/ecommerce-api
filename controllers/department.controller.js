@@ -3,6 +3,7 @@ const SubDepartment = require("../models/subdepartment");
 
 exports.getAllDepartment = async (req, res, next) => {
   try {
+    const departments = await Department.fi
   } catch (error) {
     next(error);
   }
