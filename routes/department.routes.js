@@ -16,4 +16,6 @@ router
 
 router.route("/:id/sub").get(controller.getAllSubDepartment);
 
+router.route("/sub").post(controller.createSubDepartment);
+
 module.exports = router;

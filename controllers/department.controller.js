@@ -5,6 +5,7 @@ const SubDepartment = require("../models/subdepartment");
 const {
   createDepartmentValidator,
   updateDepartmentValidator,
+  createSubDepartmentValidator,
 } = require("../validators/department.validator");
 
 exports.getAllDepartment = async (req, res, next) => {
@@ -98,6 +99,37 @@ exports.getAllSubDepartment = async (req, res, next) => {
     const subDepartments = await SubDepartment.find({ department: id });
 
     return successResponse(res, 200, { subDepartments });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.createSubDepartment = async (req, res, next) => {
+  try {
+    const { title, department } = req.body;
+
+    await createSubDepartmentValidator.validate(req.body, {
+      abortEarly: false,
+    });
+
+    const isExistSubDepartment = await SubDepartment.findOne({
+      title,
+      department,
+    });
+
+    if (isExistSubDepartment) {
+      return errorResponse(res, 400, "This subDepartment is already exist !!!");
+    }
+
+    const newSubDepartment = await SubDepartment.create({
+      title,
+      department,
+    });
+
+    return successResponse(res, 201, {
+      message: "Sub department created successfully :)",
+      subDepartment: newSubDepartment,
+    });
   } catch (error) {
     next(error);
   }
