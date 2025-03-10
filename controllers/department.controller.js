@@ -24,6 +24,12 @@ exports.createDepartment = async (req, res, next) => {
 
     await createDepartmentValidator.validate(req.body, { abortEarly: false });
 
+    const isExistDepartment = await Department.findOne({ title });
+
+    if (isExistDepartment) {
+      return errorResponse(res, 400, "this department is already exist !!!");
+    }
+
     const newDepartment = await Department.create({
       title,
     });
