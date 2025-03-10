@@ -4,6 +4,7 @@ const Department = require("../models/department");
 const SubDepartment = require("../models/subdepartment");
 const {
   createDepartmentValidator,
+  updateDepartmentValidator,
 } = require("../validators/department.validator");
 
 exports.getAllDepartment = async (req, res, next) => {
@@ -60,6 +61,28 @@ exports.deleteDepartment = async (req, res, next) => {
 
 exports.updateDepartment = async (req, res, next) => {
   try {
+    const { id } = req.params;
+
+    const { title } = req.body;
+
+    await updateDepartmentValidator.validate(req.body, { abortEarly: false });
+
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 400, "Please send valid id !!!");
+    }
+
+    const updatedDepartment = await Department.findByIdAndUpdate(id, {
+      title,
+    });
+
+    if (!updatedDepartment) {
+      return errorResponse(res, 404, "Department is not found !!!");
+    }
+
+    return successResponse(res, 200, {
+      message: "Department updated successfully :)",
+      department: updatedDepartment,
+    });
   } catch (error) {
     next(error);
   }
