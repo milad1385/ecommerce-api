@@ -90,6 +90,14 @@ exports.updateDepartment = async (req, res, next) => {
 
 exports.getAllSubDepartment = async (req, res, next) => {
   try {
+    const { id } = req.params;
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 400, "Please send valid id !!!");
+    }
+
+    const subDepartments = await SubDepartment.find({ department: id });
+
+    return successResponse(res, 200, { subDepartments });
   } catch (error) {
     next(error);
   }
