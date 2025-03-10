@@ -18,6 +18,7 @@ const bookmarkRouter = require("./routes/bookmark.routes.js");
 const wishListRouter = require("./routes/wish.routes.js");
 const socialRouter = require("./routes/social.routes.js");
 const newsLetterRouter = require("./routes/newsLetter.routes.js");
+const departmentRouter = require("./routes/department.routes.js");
 const swaggerRouter = require("./routes/apiDoc.routes.js");
 const errorHandler = require("./middlewares/errorHandler.js");
 const { redirectToProduct } = require("./controllers/shortLink.controller.js");
@@ -44,6 +45,7 @@ app.use("/api/bookmark", bookmarkRouter);
 app.use("/api/wish", wishListRouter);
 app.use("/api/social", socialRouter);
 app.use("/api/newsLetter", newsLetterRouter);
+app.use("/api/department", departmentRouter);
 app.get("/p/:shortIdentifier", redirectToProduct);
 app.use("/apis", swaggerRouter);
 
