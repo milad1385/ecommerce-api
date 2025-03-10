@@ -1,4 +1,5 @@
-const { successResponse } = require("../helpers/responses");
+const { isValidObjectId } = require("mongoose");
+const { successResponse, errorResponse } = require("../helpers/responses");
 const Department = require("../models/department");
 const SubDepartment = require("../models/subdepartment");
 const {
@@ -36,6 +37,22 @@ exports.createDepartment = async (req, res, next) => {
 
 exports.deleteDepartment = async (req, res, next) => {
   try {
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 400, "Please send valid id !!!");
+    }
+
+    const deletedDepartment = await Department.findByIdAndDelete(id);
+
+    if (!deletedDepartment) {
+      return errorResponse(res, 404, "Department is not found !!!");
+    }
+
+    return successResponse(res, 200, {
+      message: "Department deleted successfully :)",
+      department: deletedDepartment,
+    });
   } catch (error) {
     next(error);
   }
