@@ -1,6 +1,9 @@
 const { successResponse } = require("../helpers/responses");
 const Department = require("../models/department");
 const SubDepartment = require("../models/subdepartment");
+const {
+  createDepartmentValidator,
+} = require("../validators/department.validator");
 
 exports.getAllDepartment = async (req, res, next) => {
   try {
