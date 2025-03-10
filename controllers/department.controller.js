@@ -17,6 +17,18 @@ exports.getAllDepartment = async (req, res, next) => {
 
 exports.createDepartment = async (req, res, next) => {
   try {
+    const { title } = req.body;
+
+    await createDepartmentValidator.validate(req.body, { abortEarly: false });
+
+    const newDepartment = await Department.create({
+      title,
+    });
+
+    return successResponse(res, 201, {
+      message: "Department created successfully:)",
+      department: newDepartment,
+    });
   } catch (error) {
     next(error);
   }
