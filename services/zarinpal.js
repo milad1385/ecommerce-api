@@ -1,5 +1,27 @@
-exports.createPayment = ({ amountInRial, description, mobile }) => {
+const axios = require("axios");
+
+const zarinpal = axios.create({
+  baseURL: process.env.ZARINPAL_BASE_API_URL,
+});
+
+exports.createPayment = async ({ amountInRial, description, mobile }) => {
   try {
+    const response = await zarinpal.post("/request.json", {
+      merchant_id: process.env.ZARINPAL_MERCHANT_ID,
+      amount: amountInRial,
+      callback_url: process.env.ZARINPAL_CALLBACK_URL,
+      description,
+      metadata: {
+        mobile,
+      },
+    });
+
+    const data = response.data.data;
+
+    return {
+      authority: data.authority,
+      paymentUrl: `${process.env.ZARINPAL_BASE_API_URL}/${data.authority}`,
+    };
   } catch (error) {
     throw new Error(error);
   }
