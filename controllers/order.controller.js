@@ -1,6 +1,8 @@
-const { successResponse } = require("../helpers/responses");
+const { isValidObjectId } = require("mongoose");
+const { successResponse, errorResponse } = require("../helpers/responses");
 const Order = require("../models/order");
 const { createPagination } = require("../utils/pagination");
+const { updateOrderValidator } = require("../validators/order.validator");
 
 exports.getAllUserOrder = async (req, res, next) => {
   try {
@@ -17,7 +19,10 @@ exports.getAllUserOrder = async (req, res, next) => {
     const orders = await Order.find(filters)
       .skip((page - 1) * limit)
       .limit(limit)
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .populate("user" , "-addresses")
+      .populate("items.product")
+      .populate("items.seller");
 
     const totalUserOrdersCount = await Order.countDocuments(filters);
 
@@ -43,7 +48,10 @@ exports.getAllOrders = async (req, res, next) => {
     const orders = await Order.find(filters)
       .skip((page - 1) * limit)
       .limit(limit)
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .populate("user" , "-addresses")
+      .populate("items.product")
+      .populate("items.seller");
 
     const totalOrdersCount = await Order.countDocuments(filters);
 
@@ -58,6 +66,30 @@ exports.getAllOrders = async (req, res, next) => {
 
 exports.updateOrderStatus = async (req, res, next) => {
   try {
+    const { orderId } = req.params;
+    const { status, postTrackingCode } = req.body;
+
+    if (!isValidObjectId(orderId)) {
+      return errorResponse(res, 400, "Please send valid id !!!");
+    }
+
+    await updateOrderValidator.validate(req.body, { abortEarly: false });
+
+    const updatedOrder = await Order.findByIdAndUpdate(
+      orderId,
+      {
+        $set: {
+          postTrackingCode,
+          status,
+        },
+      },
+      { new: true }
+    );
+
+    return successResponse(res, 200, {
+      message: `Post status change to ${status}`,
+      order: updatedOrder,
+    });
   } catch (error) {
     next(error);
   }
