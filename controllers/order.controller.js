@@ -30,6 +30,32 @@ exports.getAllUserOrder = async (req, res, next) => {
   }
 };
 
+exports.getAllOrders = async (req, res, next) => {
+  try {
+    const { status = "all", page = 1, limit = 10 } = req.query;
+
+    const filters = {};
+
+    if (status !== "all") {
+      filters.status = status;
+    }
+
+    const orders = await Order.find(filters)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
+    const totalOrdersCount = await Order.countDocuments(filters);
+
+    return successResponse(res, 200, {
+      orders,
+      pagination: createPagination(page, limit, totalOrdersCount, "Orders"),
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.updateOrderStatus = async (req, res, next) => {
   try {
   } catch (error) {
