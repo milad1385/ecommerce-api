@@ -20,7 +20,7 @@ exports.createPayment = async ({ amountInRial, description, mobile }) => {
 
     return {
       authority: data.authority,
-      paymentUrl: `${process.env.ZARINPAL_BASE_API_URL}/${data.authority}`,
+      paymentUrl: `${process.env.ZARINPAL_BASE_PAYMENT_URL}/${data.authority}`,
     };
   } catch (error) {
     throw new Error(error);

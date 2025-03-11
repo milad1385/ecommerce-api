@@ -71,11 +71,11 @@ const checkoutSchema = new mongoose.Schema(
       trim: true,
     },
 
-    expiresAt: {
-      type: Date,
-      required: true,
-      default: () => Date.now() * 60 * 60 * 1000, // 1 Hour from creation
-    },
+    // expiresAt: {
+    //   type: Date,
+    //   required: true,
+    //   default: () => Date.now() * 60 * 60 * 1000, // 1 Hour from creation
+    // },
   },
   { timestamps: true }
 );
@@ -88,6 +88,6 @@ checkoutSchema.virtual("totalPrice").get(function () {
   );
 });
 
-checkoutSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+// checkoutSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 module.exports = mongoose.model("Checkout", checkoutSchema);
