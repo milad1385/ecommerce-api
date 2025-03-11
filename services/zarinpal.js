@@ -27,9 +27,18 @@ exports.createPayment = async ({ amountInRial, description, mobile }) => {
   }
 };
 
-exports.verifyPayment = ({ amountInRial, authority }) => {
+exports.verifyPayment = async ({ amountInRial, authority }) => {
   try {
-  } catch (error) {
-    throw new Error(error);
+    const response = await zarinpal.post("/verify.json", {
+      merchant_id: process.env.ZARINPAL_MERCHANT_ID,
+      amount: amountInRial,
+      authority,
+    });
+
+    const data = response.data.data;
+
+    return data;
+  } catch (err) {
+    throw new Error(err);
   }
 };
