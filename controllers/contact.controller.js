@@ -3,6 +3,7 @@ const nodemailer = require("nodemailer");
 const Contact = require("../models/contactus");
 const { createContactValidator } = require("../validators/contact.validator");
 const { createPagination } = require("../utils/pagination");
+const { isValidObjectId } = require("mongoose");
 
 exports.getAllContacts = async (req, res, next) => {
   try {
@@ -55,6 +56,47 @@ exports.createContact = async (req, res, next) => {
 
 exports.updateContact = async (req, res, next) => {
   try {
+    const { id } = req.params;
+
+    const { status, body, email } = req.body;
+
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 400, "Please send valid id !!!");
+    }
+
+    let transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.NODE_MAILER_AUTH_EMAIl,
+        pass: process.env.NODE_MAILER_AUTH_PASS,
+      },
+    });
+
+    const mailOptions = {
+      from: process.env.NODE_MAILER_EMAIL,
+      to: email,
+      subject: "پشتیبانی سایت",
+      text: body,
+    };
+
+    transporter.sendMail(mailOptions, async (error, info) => {
+      if (error) {
+        return errorResponse(res, 400, "send mail faild !!!");
+      } else {
+        const updatedContact = await Contact.findByIdAndUpdate(
+          id,
+          {
+            status,
+          },
+          { new: true }
+        );
+
+        return successResponse(res, 200, {
+          message: `Contact ${status} successfully :)`,
+          contact: updatedContact,
+        });
+      }
+    });
   } catch (error) {
     next(error);
   }
