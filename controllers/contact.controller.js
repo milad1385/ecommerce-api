@@ -13,7 +13,20 @@ exports.getAllContacts = async (req, res, next) => {
 
 exports.createContact = async (req, res, next) => {
   try {
-    
+    const { email, content, phone } = req.body;
+
+    await createContactValidator.validate(req.body, { abortEarly: false });
+
+    const newContact = await Contact.create({
+      content,
+      email,
+      phone,
+    });
+
+    return successResponse(res, 201, {
+      message: "contact created successfully :)",
+      contact: newContact,
+    });
   } catch (error) {
     next(error);
   }
