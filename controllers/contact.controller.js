@@ -1,7 +1,10 @@
 const { errorResponse, successResponse } = require("../helpers/responses");
 const nodemailer = require("nodemailer");
 const Contact = require("../models/contactus");
-const { createContactValidator } = require("../validators/contact.validator");
+const {
+  createContactValidator,
+  updateContactValidator,
+} = require("../validators/contact.validator");
 const { createPagination } = require("../utils/pagination");
 const { isValidObjectId } = require("mongoose");
 
@@ -59,6 +62,8 @@ exports.updateContact = async (req, res, next) => {
     const { id } = req.params;
 
     const { status, body, email } = req.body;
+
+    await updateContactValidator.validate(req.body, { abortEarly: false });
 
     if (!isValidObjectId(id)) {
       return errorResponse(res, 400, "Please send valid id !!!");
