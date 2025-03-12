@@ -1,11 +1,32 @@
 const { errorResponse, successResponse } = require("../helpers/responses");
-const Contact = require("../models/contactus");
-
 const nodemailer = require("nodemailer");
+const Contact = require("../models/contactus");
 const { createContactValidator } = require("../validators/contact.validator");
+const { createPagination } = require("../utils/pagination");
 
 exports.getAllContacts = async (req, res, next) => {
   try {
+    const { page = 1, limit = 10, status = "all" } = req.query;
+
+    const filters = {};
+
+    if (status !== "all") {
+      filters.status = status;
+    }
+
+    const contacts = await Contact.find(filters)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({
+        createdAt: -1,
+      });
+
+    const contactsCount = await Contact.countDocuments(filters);
+
+    return successResponse(res, 200, {
+      contacts,
+      pagination: createPagination(page, limit, contactsCount, "Contacts"),
+    });
   } catch (error) {
     next(error);
   }
