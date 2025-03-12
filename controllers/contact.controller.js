@@ -109,6 +109,22 @@ exports.updateContact = async (req, res, next) => {
 
 exports.deleteContact = async (req, res, next) => {
   try {
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 400, "Please send valid id !!!");
+    }
+
+    const deletedContact = await Contact.findByIdAndDelete(id);
+
+    if (!deletedContact) {
+      return errorResponse(res, 404, "contact is not found !!!");
+    }
+
+    return successResponse(res, 200, {
+      message: "Contact deleted successfully :)",
+      contact: deletedContact,
+    });
   } catch (error) {
     next(error);
   }
