@@ -3,7 +3,10 @@ const Department = require("../models/department");
 const SubDepartment = require("../models/subdepartment");
 const { successResponse, errorResponse } = require("../helpers/responses");
 const { createPagination } = require("../utils/pagination");
-const { createTicketValidator } = require("../validators/ticket.validator");
+const {
+  createTicketValidator,
+  sendAnswerToTicketValidator,
+} = require("../validators/ticket.validator");
 const { isValidObjectId } = require("mongoose");
 
 exports.getAllUserTickets = async (req, res, next) => {
@@ -107,6 +110,35 @@ exports.getAllTickets = async (req, res, next) => {
 
 exports.sendAnswerToTicket = async (req, res, next) => {
   try {
+    const { id } = req.params;
+    const { content, isAnswer } = req.body;
+
+    if (isValidObjectId(id)) {
+      return errorResponse(res, 400, "Please send valid id !!");
+    }
+
+    await sendAnswerToTicketValidator.validate(req.body, { abortEarly: false });
+
+    const answerObject = {
+      user: user._id,
+      isAnswer,
+      content,
+    };
+
+    const updatedTicket = await Ticket.findByIdAndUpdate(
+      id,
+      {
+        $push: {
+          replies: answerObject,
+        },
+      },
+      { new: true }
+    );
+
+    return successResponse(res, 200, {
+      message: "Answer send successfully :)",
+      ticket: updatedTicket,
+    });
   } catch (error) {
     next(error);
   }
