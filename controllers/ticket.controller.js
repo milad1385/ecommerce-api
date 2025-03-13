@@ -6,6 +6,7 @@ const { createPagination } = require("../utils/pagination");
 const {
   createTicketValidator,
   sendAnswerToTicketValidator,
+  changeTicketStatusValidator,
 } = require("../validators/ticket.validator");
 const { isValidObjectId } = require("mongoose");
 
@@ -146,6 +147,29 @@ exports.sendAnswerToTicket = async (req, res, next) => {
 
 exports.changeTicketStatus = async (req, res, next) => {
   try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (isValidObjectId(id)) {
+      return errorResponse(res, 400, "Please send valid id !!");
+    }
+
+    await changeTicketStatusValidator.validate(req.body, { abortEarly: false });
+
+    const updatedTicket = await Ticket.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    );
+
+    if (!updatedTicket) {
+      return errorResponse(res, 404, "Ticket is not found !!!");
+    }
+
+    return successResponse(res, 200, {
+      message: `status changed to ${status}`,
+      ticket: updatedTicket,
+    });
   } catch (error) {
     next(error);
   }
@@ -164,6 +188,7 @@ exports.deleteTicket = async (req, res, next) => {
     if (!deletedTicket) {
       return errorResponse(res, 404, "Ticket is not found !!!");
     }
+    
 
     return successResponse(res, 200, {
       message: "Ticket deleted successfully :)",
