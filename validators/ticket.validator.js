@@ -17,3 +17,8 @@ exports.createTicketValidator = yup.object({
       isValidObjectId(value)
     ),
 });
+
+exports.sendAnswerToTicketValidator = yup.object({
+  content: yup.string().required("content is required !!!"),
+  isAnswer: yup.boolean().required("isAnswer is required !!!"),
+});
