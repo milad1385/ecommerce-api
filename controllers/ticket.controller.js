@@ -4,6 +4,7 @@ const SubDepartment = require("../models/subdepartment");
 const { successResponse, errorResponse } = require("../helpers/responses");
 const { createPagination } = require("../utils/pagination");
 const { createTicketValidator } = require("../validators/ticket.validator");
+const { isValidObjectId } = require("mongoose");
 
 exports.getAllUserTickets = async (req, res, next) => {
   try {
@@ -120,6 +121,22 @@ exports.changeTicketStatus = async (req, res, next) => {
 
 exports.deleteTicket = async (req, res, next) => {
   try {
+    const { id } = req.params;
+
+    if (isValidObjectId(id)) {
+      return errorResponse(res, 400, "Please send valid id !!");
+    }
+
+    const deletedTicket = await Ticket.findByIdAndDelete(id);
+
+    if (!deletedTicket) {
+      return errorResponse(res, 404, "Ticket is not found !!!");
+    }
+
+    return successResponse(res, 200, {
+      message: "Ticket deleted successfully :)",
+      ticket: deletedTicket,
+    });
   } catch (error) {
     next(error);
   }
