@@ -22,3 +22,12 @@ exports.sendAnswerToTicketValidator = yup.object({
   content: yup.string().required("content is required !!!"),
   isAnswer: yup.boolean().required("isAnswer is required !!!"),
 });
+
+exports.changeTicketStatusValidator = yup.object({
+  status: yup
+    .string()
+    .oneOf(
+      ["PENDING", "ANSWERED", "CLOSED"],
+      "status must be one of this item [PENDING , ANSWERED CLOSED] "
+    ),
+});
