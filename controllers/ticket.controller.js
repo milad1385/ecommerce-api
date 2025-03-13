@@ -79,6 +79,26 @@ exports.createTicket = async (req, res, next) => {
 
 exports.getAllTickets = async (req, res, next) => {
   try {
+    const { page = 1, limit = 10, status = "all" } = req.query;
+
+    const filters = {};
+
+    if (status !== "all") {
+      filters.status = status;
+    }
+
+    const tickets = await Ticket.find(filters)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .populate("user department subDepartment", "-addresses")
+      .sort({ createdAt: -1 });
+
+    const totalTicketsCount = await Ticket.countDocuments(filters);
+
+    return successResponse(res, 200, {
+      tickets,
+      pagination: createPagination(page, limit, totalTicketsCount, "Tickets"),
+    });
   } catch (error) {
     next(error);
   }
