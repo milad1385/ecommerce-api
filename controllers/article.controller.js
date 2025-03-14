@@ -42,3 +42,17 @@ exports.changeArticleStatus = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getArticlesByCategory = async (req, res, next) => {
+  try {
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getArticle = async (req, res, next) => {
+  try {
+  } catch (error) {
+    next(error);
+  }
+};

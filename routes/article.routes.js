@@ -18,4 +18,8 @@ router
   .put(auth, roleGaurd("ADMIN"), controller.updateArticle)
   .patch(auth, roleGaurd("ADMIN"), controller.changeArticleStatus);
 
+router.route("/:shortName").get(controller.getArticle);
+
+router.route("/category/:shortName").get(controller.getArticlesByCategory);
+
 module.exports = router;
