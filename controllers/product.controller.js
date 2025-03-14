@@ -24,6 +24,22 @@ const supportedFormat = [
   "image/svg+xml",
 ];
 
+const addView = async (ipAddress, productId) => {
+  // **Check for existing view from this IP in the last 24 hours (consideration):**
+  const existingView = await View.findOne({
+    product: productId,
+    ipAddress,
+    createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }, // Last 24 hours
+  });
+
+  if (existingView) return;
+
+  await View.create({
+    product: productId,
+    ipAddress,
+  });
+};
+
 exports.create = async (req, res, next) => {
   try {
     let {
@@ -459,20 +475,4 @@ const buildQuery = async (
   }
 
   return filters;
-};
-
-const addView = async (ipAddress, productId) => {
-  // **Check for existing view from this IP in the last 24 hours (consideration):**
-  const existingView = await View.findOne({
-    product: productId,
-    ipAddress,
-    createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }, // Last 24 hours
-  });
-
-  if (existingView) return;
-
-  await View.create({
-    product: productId,
-    ipAddress,
-  });
 };
