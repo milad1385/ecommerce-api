@@ -10,6 +10,7 @@ const Product = require("../models/product");
 const Bookmark = require("../models/bookmark");
 const WishList = require("../models/wish");
 const Note = require("../models/note");
+const View = require("../models/View");
 const fs = require("fs");
 const { createPagination } = require("../utils/pagination");
 const Category = require("../models/category");
@@ -250,6 +251,18 @@ exports.getOne = async (req, res, next) => {
       return errorResponse(res, 404, "Product not found !!!");
     }
 
+    let ips = (
+      req.headers["cf-connecting-ip"] ||
+      req.headers["x-real-ip"] ||
+      req.headers["x-forwarded-for"] ||
+      req.connection.remoteAddress ||
+      ""
+    ).split(",");
+
+    const ipAddress = ips[0].trim();
+
+    await addView(ipAddress, id);
+
     if (user) {
       const bookmark = await Bookmark.findOne({
         user: user._id,
@@ -448,10 +461,10 @@ const buildQuery = async (
   return filters;
 };
 
-const addView = async (ipAddress, postId) => {
+const addView = async (ipAddress, productId) => {
   // **Check for existing view from this IP in the last 24 hours (consideration):**
   const existingView = await View.findOne({
-    post: postId,
+    product: productId,
     ipAddress,
     createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }, // Last 24 hours
   });
@@ -459,7 +472,7 @@ const addView = async (ipAddress, postId) => {
   if (existingView) return;
 
   await View.create({
-    post: postId,
+    product: productId,
     ipAddress,
   });
 };
