@@ -1,0 +1,21 @@
+const express = require("express");
+const controller = require("../controllers/article.controller");
+const { auth } = require("../middlewares/auth");
+const roleGaurd = require("../middlewares/roleGaurd");
+
+const router = express.Router();
+
+router
+  .route("/")
+  .get(controller.getAllPublishedArticles)
+  .post(auth, roleGaurd("ADMIN"), controller.createArticle);
+
+router.route("/all").get(auth, roleGaurd("ADMIN"), controller.getAllArticles);
+
+router
+  .route("/:id")
+  .delete(auth, roleGaurd("ADMIN"), controller.deleteArticle)
+  .put(auth, roleGaurd("ADMIN"), controller.updateArticle)
+  .patch(auth, roleGaurd("ADMIN"), controller.changeArticleStatus);
+
+module.exports = router;
