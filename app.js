@@ -22,6 +22,7 @@ const departmentRouter = require("./routes/department.routes.js");
 const contactRouter = require("./routes/contactus.routes.js");
 const ticketRouter = require("./routes/ticket.routes.js");
 const articleRouter = require("./routes/article.routes.js");
+const articleCategoryRouter = require("./routes/articleCategory.routes.js");
 const swaggerRouter = require("./routes/apiDoc.routes.js");
 const errorHandler = require("./middlewares/errorHandler.js");
 const { redirectToProduct } = require("./controllers/shortLink.controller.js");
@@ -52,6 +53,7 @@ app.use("/api/department", departmentRouter);
 app.use("/api/contact", contactRouter);
 app.use("/api/ticket", ticketRouter);
 app.use("/api/article", articleRouter);
+app.use("/api/article-category", articleCategoryRouter);
 app.get("/p/:shortIdentifier", redirectToProduct);
 app.use("/apis", swaggerRouter);
 
