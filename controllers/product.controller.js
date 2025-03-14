@@ -447,3 +447,19 @@ const buildQuery = async (
 
   return filters;
 };
+
+const addView = async (ipAddress, postId) => {
+  // **Check for existing view from this IP in the last 24 hours (consideration):**
+  const existingView = await View.findOne({
+    post: postId,
+    ipAddress,
+    createdAt: { $gte: new Date(Date.now() - 24 * 60 * 60 * 1000) }, // Last 24 hours
+  });
+
+  if (existingView) return;
+
+  await View.create({
+    post: postId,
+    ipAddress,
+  });
+};
