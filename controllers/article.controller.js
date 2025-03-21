@@ -135,6 +135,21 @@ exports.getArticlesByCategory = async (req, res, next) => {
 
 exports.getArticle = async (req, res, next) => {
   try {
+    const { shortName } = req.params;
+
+    if (!shortName) {
+      return errorResponse(res, 400, "Please send short name of article");
+    }
+
+    const article = await Article.findOne({ shortName }).populate(
+      "author categories"
+    );
+
+    if (!article) {
+      return errorResponse(res, 404, "Article is not found !!!");
+    }
+
+    return successResponse(res, 200, { article });
   } catch (error) {
     next(error);
   }
