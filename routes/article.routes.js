@@ -2,13 +2,20 @@ const express = require("express");
 const controller = require("../controllers/article.controller");
 const { auth } = require("../middlewares/auth");
 const roleGaurd = require("../middlewares/roleGaurd");
+const { multerStorage } = require("../middlewares/multer");
 
 const router = express.Router();
+const uploader = multerStorage("public/images/articles");
 
 router
   .route("/")
   .get(controller.getAllPublishedArticles)
-  .post(auth, roleGaurd("ADMIN"), controller.createArticle);
+  .post(
+    auth,
+    roleGaurd("ADMIN"),
+    uploader.single("cover"),
+    controller.createArticle
+  );
 
 router.route("/all").get(auth, roleGaurd("ADMIN"), controller.getAllArticles);
 

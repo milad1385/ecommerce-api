@@ -2,6 +2,7 @@ const { isValidObjectId } = require("mongoose");
 const Article = require("../models/Article");
 const ArticleCategory = require("../models/ArticleCategory");
 const { errorResponse, successResponse } = require("../helpers/responses");
+const { createArticleValidator } = require("../validators/article.valodator");
 
 exports.getAllPublishedArticles = async (req, res, next) => {
   try {
@@ -12,6 +13,31 @@ exports.getAllPublishedArticles = async (req, res, next) => {
 
 exports.createArticle = async (req, res, next) => {
   try {
+    let { title, body, shortName, categories, status } = req.body;
+
+    categories = JSON.parse(categories);
+    const user = req.user;
+
+    await createArticleValidator.validate(req.body, { abortEarly: false });
+
+    if (!req.file) {
+      return errorResponse(res, 400, "Please upload cover");
+    }
+
+    const newArticle = await Article.create({
+      author: user._id,
+      categories,
+      body,
+      cover: req.file.filename,
+      shortName,
+      status,
+      title,
+    });
+
+    return successResponse(res, 201, {
+      message: "Article created successfully :)",
+      article: newArticle,
+    });
   } catch (error) {
     next(error);
   }
