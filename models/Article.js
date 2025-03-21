@@ -33,6 +33,11 @@ const articleSchema = new mongoose.Schema(
       enum: ["published", "draft", "reject"],
       default: true,
     },
+    cover: {
+      type: String,
+      required: true,
+      trim: true,
+    },
   },
   { timestamps: true }
 );
