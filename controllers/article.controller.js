@@ -60,6 +60,26 @@ exports.createArticle = async (req, res, next) => {
 
 exports.getAllArticles = async (req, res, next) => {
   try {
+    const { page = 1, limit = 10, status = "all" } = req.query;
+
+    const filters = {};
+
+    if (status !== "all") {
+      filters.status = status;
+    }
+
+    const articles = await Article.find(filters)
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({ createdAt: -1 })
+      .populate("author categories");
+
+    const articlesCount = await Article.countDocuments(filters);
+
+    return successResponse(res, 200, {
+      articles,
+      pagination: createPagination(page, limit, articlesCount, "Articles"),
+    });
   } catch (error) {
     next(error);
   }
