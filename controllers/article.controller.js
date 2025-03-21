@@ -3,9 +3,24 @@ const Article = require("../models/Article");
 const ArticleCategory = require("../models/ArticleCategory");
 const { errorResponse, successResponse } = require("../helpers/responses");
 const { createArticleValidator } = require("../validators/article.valodator");
+const { createPagination } = require("../utils/pagination");
 
 exports.getAllPublishedArticles = async (req, res, next) => {
   try {
+    const { page = 1, limit = 10 } = req.query;
+
+    const articles = await Article.find({ status: "published" })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({ createdAt: -1 })
+      .populate("author categories");
+
+    const articlesCount = await Article.countDocuments({ status: "published" });
+
+    return successResponse(res, 200, {
+      articles,
+      pagination: createPagination(page, limit, articlesCount, "Articles"),
+    });
   } catch (error) {
     next(error);
   }
