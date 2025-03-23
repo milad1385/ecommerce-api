@@ -144,6 +144,7 @@ exports.getArticlesByCategory = async (req, res, next) => {
     const articles = await Article.find({ categories: { $in: category._id } })
       .skip((page - 1) * limit)
       .limit(limit)
+      .populate("author categories")
       .sort({ createdAt: -1 });
 
     const articlesCount = await Article.countDocuments({
