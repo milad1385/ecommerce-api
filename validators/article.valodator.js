@@ -1,3 +1,4 @@
+const { isValidObjectId } = require("mongoose");
 const yup = require("yup");
 
 exports.createArticleValidator = yup.object({
@@ -9,4 +10,17 @@ exports.createArticleValidator = yup.object({
     .string()
     .oneOf(["published", "draft", "reject"])
     .required("status is required !!!"),
+});
+
+exports.changeArticleStatus = yup.object({
+  status: yup
+    .string()
+    .oneOf(["published", "draft", "reject"])
+    .required("status is required !!!"),
+  articleId: yup
+    .string()
+    .required("article ID is required")
+    .test("is-valid-object-id", "Invalid article ID", (value) =>
+      isValidObjectId(value)
+    ),
 });
