@@ -12,7 +12,7 @@ exports.createArticleValidator = yup.object({
     .required("status is required !!!"),
 });
 
-exports.changeArticleStatus = yup.object({
+exports.changeArticleStatusValidator = yup.object({
   status: yup
     .string()
     .oneOf(["published", "draft", "reject"])

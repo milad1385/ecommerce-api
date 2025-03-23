@@ -2,7 +2,10 @@ const { isValidObjectId } = require("mongoose");
 const Article = require("../models/Article");
 const ArticleCategory = require("../models/ArticleCategory");
 const { errorResponse, successResponse } = require("../helpers/responses");
-const { createArticleValidator } = require("../validators/article.valodator");
+const {
+  createArticleValidator,
+  changeArticleStatusValidator,
+} = require("../validators/article.valodator");
 const { createPagination } = require("../utils/pagination");
 
 exports.getAllPublishedArticles = async (req, res, next) => {
@@ -121,6 +124,28 @@ exports.updateArticle = async (req, res, next) => {
 
 exports.changeArticleStatus = async (req, res, next) => {
   try {
+    const { status, articleId } = req.body;
+
+    await changeArticleStatusValidator.validate(req.body, {
+      abortEarly: false,
+    });
+
+    const updatedArticle = await Article.findOneAndUpdate(
+      { _id: articleId },
+      {
+        status,
+      },
+      { new: true }
+    );
+
+    if (!updatedArticle) {
+      return errorResponse(res, 404, "Article is not found !!!");
+    }
+
+    return successResponse(res, 200, {
+      message: "Article updated successfully :)",
+      article: updatedArticle,
+    });
   } catch (error) {
     next(error);
   }
