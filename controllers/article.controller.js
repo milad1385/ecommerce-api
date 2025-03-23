@@ -128,6 +128,32 @@ exports.changeArticleStatus = async (req, res, next) => {
 
 exports.getArticlesByCategory = async (req, res, next) => {
   try {
+    const { shortName } = req.params;
+    const { page = 1, limit = 20 } = req.query;
+
+    if (!shortName) {
+      return errorResponse(res, 400, "short name is required !!!");
+    }
+
+    const category = await ArticleCategory.findOne({ shortName });
+
+    if (!category) {
+      return errorResponse(res, 404, "Article category is not found !!!");
+    }
+
+    const articles = await Article.find({ categories: { $in: category._id } })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
+    const articlesCount = await Article.countDocuments({
+      categories: { $in: category._id },
+    });
+
+    return successResponse(res, 200, {
+      articles,
+      pagination: createPagination(page, limit, articlesCount, "Articles"),
+    });
   } catch (error) {
     next(error);
   }
