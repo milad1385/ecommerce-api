@@ -12,6 +12,14 @@ exports.createArticleValidator = yup.object({
     .required("status is required !!!"),
 });
 
+exports.updateArticleValidator = yup.object({
+  title: yup.string(),
+  body: yup.string(),
+  shortName: yup.string(),
+  categories: yup.array(),
+  status: yup.string().oneOf(["published", "draft", "reject"]),
+});
+
 exports.changeArticleStatusValidator = yup.object({
   status: yup
     .string()
