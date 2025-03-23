@@ -13,11 +13,14 @@ exports.createArticleValidator = yup.object({
 });
 
 exports.updateArticleValidator = yup.object({
-  title: yup.string(),
-  body: yup.string(),
-  shortName: yup.string(),
-  categories: yup.array(),
-  status: yup.string().oneOf(["published", "draft", "reject"]),
+  title: yup.string().required("Title is required !!!"),
+  body: yup.string().required("body is required !!!"),
+  shortName: yup.string().required("Short name is required !!!"),
+  categories: yup.array().required("categories is required !!!"),
+  status: yup
+    .string()
+    .oneOf(["published", "draft", "reject"])
+    .required("status is required !!!"),
 });
 
 exports.changeArticleStatusValidator = yup.object({

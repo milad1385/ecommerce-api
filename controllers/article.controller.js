@@ -5,6 +5,7 @@ const { errorResponse, successResponse } = require("../helpers/responses");
 const {
   createArticleValidator,
   changeArticleStatusValidator,
+  updateArticleValidator,
 } = require("../validators/article.valodator");
 const { createPagination } = require("../utils/pagination");
 
@@ -117,6 +118,52 @@ exports.deleteArticle = async (req, res, next) => {
 
 exports.updateArticle = async (req, res, next) => {
   try {
+    const user = req.user;
+    let { title, body, shortName, categories, status } = req.body;
+
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 400, "Please send valid id");
+    }
+
+    if (categories.length) {
+      categories = JSON.parse(categories);
+    }
+
+    await updateArticleValidator.validate(req.body, { abortEarly: false });
+
+    const currentArticle = await Article.findOne({ _id: id });
+
+    if (user._id.toString() !== currentArticle.author.toString()) {
+      return errorResponse(
+        res,
+        403,
+        "You cant update another author article !!!"
+      );
+    }
+
+    let image = null;
+    if (req.file) {
+      image = req.file.filename;
+    }
+
+    const updatedArticle = await Article.findOneAndUpdate(
+      { _id: id },
+      {
+        categories,
+        body,
+        cover: image ? image : currentArticle.cover,
+        shortName,
+        status,
+        title,
+      }
+    );
+
+    return successResponse(res, 200, {
+      message: "Article updated successfully :)",
+      article: updatedArticle,
+    });
   } catch (error) {
     next(error);
   }
