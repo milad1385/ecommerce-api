@@ -6,6 +6,7 @@ const {
   createArticleCategoryValidator,
 } = require("../validators/articleCategory.validator");
 const fs = require("fs");
+const { createPagination } = require("../utils/pagination");
 
 const supportedFormat = [
   "image/jpeg",
@@ -20,6 +21,30 @@ exports.getAllArticlesCategory = async (req, res, next) => {
   try {
     const articleCategories = await ArticleCategory.find({});
     return successResponse(res, 200, { articleCategories });
+  } catch (error) {
+    next(error);
+  }
+};
+
+exports.getAllArticlesCategoryAdmin = async (req, res, next) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+
+    const articleCategories = await ArticleCategory.find({})
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    const totalArticlesCategory = await ArticleCategory.countDocuments({});
+
+    return successResponse(res, 200, {
+      articleCategories,
+      pagination: createPagination(
+        page,
+        limit,
+        totalArticlesCategory,
+        "articleCategories"
+      ),
+    });
   } catch (error) {
     next(error);
   }
