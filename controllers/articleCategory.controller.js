@@ -1,8 +1,11 @@
+const { isValidObjectId } = require("mongoose");
 const { errorResponse, successResponse } = require("../helpers/responses");
 const ArticleCategory = require("../models/ArticleCategory");
+const Article = require("../models/Article");
 const {
   createArticleCategoryValidator,
 } = require("../validators/articleCategory.validator");
+const fs = require("fs");
 
 const supportedFormat = [
   "image/jpeg",
@@ -83,6 +86,31 @@ exports.createArticleCategory = async (req, res, next) => {
 
 exports.deleteArticleCategory = async (req, res, next) => {
   try {
+    const { id } = req.params;
+
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 404, "id is not valid !!!");
+    }
+
+    const deletedArticleCategory = await ArticleCategory.findByIdAndDelete(id);
+
+    if (!deletedArticleCategory) {
+      return errorResponse(res, 404, "article category is not found !!!");
+    }
+
+    fs.unlink(
+      `public/images/articleCategory/${deletedArticleCategory.pic.filename}`,
+      (err) => next(err)
+    );
+
+    await Article.deleteMany({
+      categories: { $in: [deletedArticleCategory._id] },
+    });
+
+    return successResponse(res, 200, {
+      message: "Category article deleted successfully :)",
+      categoryArticle: deletedArticleCategory,
+    });
   } catch (error) {
     next(error);
   }
