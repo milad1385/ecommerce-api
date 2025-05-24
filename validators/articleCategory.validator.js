@@ -5,3 +5,9 @@ exports.createArticleCategoryValidator = yup.object({
   shortName: yup.string().required("Short name is required !!!"),
   description: yup.string().required("description is required !!!"),
 });
+
+exports.editArticleCategoryValidator = yup.object({
+  name: yup.string(),
+  shortName: yup.string(),
+  description: yup.string(),
+});

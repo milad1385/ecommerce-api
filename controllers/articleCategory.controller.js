@@ -4,6 +4,7 @@ const ArticleCategory = require("../models/ArticleCategory");
 const Article = require("../models/Article");
 const {
   createArticleCategoryValidator,
+  editArticleCategoryValidator,
 } = require("../validators/articleCategory.validator");
 const fs = require("fs");
 const { createPagination } = require("../utils/pagination");
@@ -145,6 +146,55 @@ exports.deleteArticleCategory = async (req, res, next) => {
 
 exports.updateArticleCategory = async (req, res, next) => {
   try {
+    const { id } = req.params;
+    const { name, shortName, description } = req.body;
+
+    if (!isValidObjectId(id)) {
+      return errorResponse(res, 404, "id is not valid !!!");
+    }
+
+    await editArticleCategoryValidator.validate(req.body, {
+      abortEarly: false,
+    });
+
+    let icon = null;
+    if (req.file) {
+      const { filename, mimetype } = req.file;
+
+      if (!supportedFormat.includes(mimetype)) {
+        return errorResponse(res, 422, "Please choose image with this format", {
+          supportedFormat,
+        });
+      }
+
+      icon = {
+        filename,
+        path: `/images/category-icon/${filename}`,
+      };
+    }
+
+    const articleCategory = await ArticleCategory.findOne({ _id: id });
+
+    const updatedArticleCategory = await ArticleCategory.findByIdAndUpdate(
+      id,
+      {
+        $set: {
+          description,
+          name,
+          pic: icon ? icon : articleCategory.pic,
+        },
+      },
+      { new: true }
+    );
+
+    if (!updatedArticleCategory) {
+      return errorResponse(res, 404, "article category is not found !!!");
+    }
+
+    return successResponse(res, 200, {
+      message: "article category updated successfully :)",
+      articleCategory: updatedArticleCategory,
+    });
   } catch (error) {
     next(error);
   }
