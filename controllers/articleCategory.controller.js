@@ -18,6 +18,8 @@ const supportedFormat = [
 
 exports.getAllArticlesCategory = async (req, res, next) => {
   try {
+    const articleCategories = await ArticleCategory.find({});
+    return successResponse(res, 200, { articleCategories });
   } catch (error) {
     next(error);
   }
